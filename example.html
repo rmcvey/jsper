@@ -1,0 +1,53 @@
+<html>
+<head>
+	<title>local db</title>
+	<script type="text/javascript" src="/db.js"></script>
+	<script type="text/javascript">
+		// db object is initialized when the script is included
+		if(db.supported())
+		{
+			//initialize our test data
+			var array 	= ['one', 'two', 'three'];
+			var object 	= {a:"foo", b:{c:"bar",d:"baz"}};
+			var str 	= "hello world!";
+			//output original values
+			console.log(" -- Original Data:");
+			console.log(array);
+			console.log(object);
+			console.log(str);
+		
+			/**
+			*	storage.set() method
+			*/
+			db.set("array", array);
+			db.set("object", object);
+			db.set("string", str);
+			// examine stored values
+			console.log(" -- Data Representations in Storage");
+			console.log("Array %s",  db.raw_value("array"));
+			console.log("Object %s", db.raw_value("object"));
+			console.log("String %s", db.raw_value("string"));
+		
+			/**
+			*	storage.get() method
+			*/
+			var array_out 	= db.get("array");
+			var object_out 	= db.get("object");
+			var string_out	= db.get("string");
+			//test retreived data
+			console.log(" -- Retreived Data");
+			console.log(array);
+			console.log(object);
+			console.log(str);
+		
+			db.remove_item("array", 2);
+			console.log(db.get('array'));
+			db.remove_item("object", "a");
+			console.log(db.get("object"));
+		}
+	</script>
+</head>
+<body>
+	Check the browser's console to see what's happening.
+</body>
+</html>
