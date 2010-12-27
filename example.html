@@ -4,7 +4,7 @@
 	<script type="text/javascript" src="/jsdb.js"></script>
 	<script type="text/javascript">
 		/**
-		*  NOTE: db object is initialized when the script is included
+		*  NOTE: jsdb object is initialized when the script is included
 		*/
 		window.onload = function()
 		{
@@ -13,7 +13,7 @@
 				body[0].innerHTML = "See how cool all of that stuff below is?";
 			}
 			
-			if(db.supported())
+			if(jsdb.supported())
 			{
 				//initialize our test data
 				var array 	= ['one', 'two', 'three'];
@@ -27,24 +27,24 @@
 				console.log(str);
 		
 				/**
-				*	db.set() method
+				*	jsdb.set() method
 				*/
-				db.set("array", array);
-				db.set("object", object);
-				db.set("string", str);
+				jsdb.set("array", array);
+				jsdb.set("object", object);
+				jsdb.set("string", str);
 				
 				// examine stored values
 				console.log(" -- Data Representations in Storage");
-				console.log("Array %s",  db.raw_value("array"));
-				console.log("Object %s", db.raw_value("object"));
-				console.log("String %s", db.raw_value("string"));
+				console.log("Array %s",  jsdb.raw_value("array"));
+				console.log("Object %s", jsdb.raw_value("object"));
+				console.log("String %s", jsdb.raw_value("string"));
 		
 				/**
-				*	db.get() method
+				*	jsdb.get() method
 				*/
-				var array_out 	= db.get("array");
-				var object_out 	= db.get("object");
-				var string_out	= db.get("string");
+				var array_out 	= jsdb.get("array");
+				var object_out 	= jsdb.get("object");
+				var string_out	= jsdb.get("string");
 				
 				// examine retreived data
 				console.log(" -- Retreived Data");
@@ -53,15 +53,15 @@
 				console.log(str);
 		
 				/**
-				*	db.remove_item() method
+				*	jsdb.remove_item() method
 				*/
-				db.remove_item("array", 2);
-				db.remove_item("object", "a");
+				jsdb.remove_item("array", 2);
+				jsdb.remove_item("object", "a");
 				
 				// examine updated object/array
 				console.log(" -- Removed an array item and an object attribute");
-				console.log(db.get('array'));
-				console.log(db.get("object"));
+				console.log(jsdb.get('array'));
+				console.log(jsdb.get("object"));
 			}
 		}
 	</script>
