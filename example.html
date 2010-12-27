@@ -1,16 +1,18 @@
 <html>
 <head>
 	<title>jsdb</title>
-	<script type="text/javascript" src="/db.js"></script>
+	<script type="text/javascript" src="/jsdb.js"></script>
 	<script type="text/javascript">
-		// db object is initialized when the script is included
-		
+		/**
+		*  NOTE: db object is initialized when the script is included
+		*/
 		window.onload = function()
 		{
 			var body = document.getElementsByTagName('body');
 			if(console){
 				body[0].innerHTML = "See how cool all of that stuff below is?";
 			}
+			
 			if(db.supported())
 			{
 				//initialize our test data
