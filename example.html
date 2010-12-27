@@ -17,6 +17,7 @@
 				var array 	= ['one', 'two', 'three'];
 				var object 	= {a:"foo", b:{c:"bar",d:"baz"}};
 				var str 	= "hello world!";
+				
 				//output original values
 				console.log(" -- Original Data:");
 				console.log(array);
@@ -24,11 +25,12 @@
 				console.log(str);
 		
 				/**
-				*	storage.set() method
+				*	db.set() method
 				*/
 				db.set("array", array);
 				db.set("object", object);
 				db.set("string", str);
+				
 				// examine stored values
 				console.log(" -- Data Representations in Storage");
 				console.log("Array %s",  db.raw_value("array"));
@@ -36,20 +38,27 @@
 				console.log("String %s", db.raw_value("string"));
 		
 				/**
-				*	storage.get() method
+				*	db.get() method
 				*/
 				var array_out 	= db.get("array");
 				var object_out 	= db.get("object");
 				var string_out	= db.get("string");
-				//test retreived data
+				
+				// examine retreived data
 				console.log(" -- Retreived Data");
 				console.log(array);
 				console.log(object);
 				console.log(str);
 		
+				/**
+				*	db.remove_item() method
+				*/
 				db.remove_item("array", 2);
-				console.log(db.get('array'));
 				db.remove_item("object", "a");
+				
+				// examine updated object/array
+				console.log(" -- Removed an array item and an object attribute");
+				console.log(db.get('array'));
 				console.log(db.get("object"));
 			}
 		}
