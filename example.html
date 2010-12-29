@@ -62,8 +62,6 @@
 				console.log(jsdb.get('array'));
 				console.log(jsdb.get("object"));
 			}
-			
-			jsdb.force_engine('cookies');
 
 			/**
 			*	Used as a caching mechanism for ajax content
@@ -81,15 +79,22 @@
 				});
 			}
 			
+			/**
+			*	Force Cookies
+			*/
+			jsdb.force_engine('cookies');
 			jsdb.set('cookie_object', {id:'abcs2323jalrk34jra',referrer:'local.testsite.com'});
 			console.log(jsdb.get('cookie_object'));
 			
+			/**
+			*	Reference an item that was not saved to this storage engine
+			*/
 			var saved_object = jsdb.get('object', function(data){
 				data.b.c = "This has been altered";
 				return data;
 			});
-			jsdb.get('asdfasdfasdf');
 			console.log(saved_object);
+
 		});
 	</script>
 </head>

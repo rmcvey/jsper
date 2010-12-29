@@ -242,14 +242,26 @@ var jsdb = (function(){
 		var Cookie = (function(){
 			return {
 				set:function(name,value,session_only) {
-					if (session_only) {
-						var expires = "";
-					}else{
+					var expires;
+					if (session_only === true) {
+						expires = "";
+					} else if(session_only === 'remove') {
 						var date = new Date();
-						date.setDate( date.getYear()+3, date.getMonth(), date.getDate() );
-						var expires = "; expires="+date.toGMTString();
+						date.setTime(date.getTime()+(-1*24*60*60*1000));
+						expires = "; expires="+date.toGMTString();		
+					} else {
+						var date = new Date();
+						date.setDate( date.getYear()+8, date.getMonth(), date.getDate() );
+						expires = "; expires="+date.toGMTString();
 					}
 					document.cookie = name+"="+value+expires+"; path=/";
+				},
+				destroy:function(name){
+					console.log("Destroying: %s", name);
+					var date = new Date();
+					date.setTime(date.getTime()+(-1*24*60*60*1000));
+					expires = "; expires="+date.toGMTString();
+					document.cookie = name+"="+""+expires+"; path=/";
 				},
 			  	get:function(name) {
 					var nameEQ = name + "=";
@@ -266,7 +278,17 @@ var jsdb = (function(){
 					return null;
 				},
 				remove:function(name) {
-					set(name,"",-1);
+					set(name,"");
+				},
+				clear:function() {
+					console.log("HERE");
+					var all = document.cookie.split('; ');
+					var len = all.length;
+					for( var i = 0 ; i < len; i++) {
+						destroy(
+							all[i].split('=')[0].replace(/[\s]*/g,'')
+						);
+					}
 				}
 			};
 		})();
@@ -279,7 +301,11 @@ var jsdb = (function(){
 			},
 			removeItem:function( key ) {
 				return Cookie.remove( key );
-			}
+			},
+			clear:function() {
+				return Cookie.clear();
+			},
+			length:document.cookie.split(';').length
 		};
 	})();
 
@@ -298,7 +324,7 @@ var jsdb = (function(){
 	
 	return {
 		// setup defaults
-		engines:['localStorage', 'cookies', 'sessionStorage'],
+		engines:['localStorage', 'cookie', 'sessionStorage'],
 		storage:localStorage,
 		storage_engine:'localStorage',
 		support:false,
@@ -326,7 +352,7 @@ var jsdb = (function(){
 			}
 			// call this to fallback if new engine is not supported
 			this.supported();
-			return this.storage_engine;
+			return this;
 		},
 		supported:function() {
 			this.support = ( this.storage !== "undefined" );
@@ -347,6 +373,7 @@ var jsdb = (function(){
 			} else {
 				this.storage.setItem( key, stringified, session_lifetime );
 			}
+			return this;
 		},
 		raw_value:function( key ) {
 			return this.storage.getItem( key );
@@ -375,6 +402,13 @@ var jsdb = (function(){
 				return parsed_data;
 			}
 		},
+		get_all:function(){
+			var collection = [];
+			for( var i = 0; i < this.storage.length; i++ ){
+				collection[i] = this.storage[i];
+			}
+			return collection;
+		},
 		error:function( msg ) {
 			if( console ) {
 				console.error(msg);
@@ -383,6 +417,7 @@ var jsdb = (function(){
 		},
 		remove:function( key ) {
 			this.storage.removeItem( key );
+			return this;
 		},
 		remove_item:function( key, ind ) {
 			var temp_o = this.get( key ), is_object = false;
@@ -398,9 +433,18 @@ var jsdb = (function(){
 			}
 			//reset the new object to the db key
 			this.set( key, temp_o );
+			return this;
 		},
 		clear:function(){
 			this.storage.clear();
+			if(typeof this.storage.length === "function" && this.storage.length === 0) {
+				return true;
+			} else {
+				return false;
+			}
+		},
+		size:function(){
+			return this.storage.length;
 		}
 	};
 })();
