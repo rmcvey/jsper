@@ -1,16 +1,15 @@
 <html>
 <head>
 	<title>jsdb example</title>
-	<script type="text/javascript" src="/jsdb.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
+	<script type="text/javascript" src="/jsdb/jsdb.js"></script>
 	<script type="text/javascript">
 		/**
 		*  NOTE: jsdb object is initialized when the script is included
 		*/
-		window.onload = function()
-		{
-			var body = document.getElementsByTagName('body');
+		$(document).ready(function(){
 			if(console){
-				body[0].innerHTML = "See how cool all of that stuff below is?";
+				var msg = $('#message').html("See how cool all of that stuff below is?");
 			}
 			
 			if(jsdb.supported())
@@ -63,10 +62,43 @@
 				console.log(jsdb.get('array'));
 				console.log(jsdb.get("object"));
 			}
-		}
+			
+			jsdb.force_engine('cookies');
+
+			/**
+			*	Used as a caching mechanism for ajax content
+			*/
+			var selector = "#test_item";
+			if( jsdb.get( selector )) {
+				$( selector ).html("<strong>Cached:</strong>" +jsdb.get( selector ));
+			} else {
+				$.ajax({
+					url:'/jsdb/ajax.html',
+					success:function( response ) {
+						$( selector ).html( response );
+						jsdb.set( selector, response, true );
+					}
+				});
+			}
+			
+			jsdb.set('cookie_object', {id:'abcs2323jalrk34jra',referrer:'local.testsite.com'});
+			console.log(jsdb.get('cookie_object'));
+			
+			var saved_object = jsdb.get('object', function(data){
+				data.b.c = "This has been altered";
+				return data;
+			});
+			jsdb.get('asdfasdfasdf');
+			console.log(saved_object);
+		});
 	</script>
 </head>
 <body>
-	Check the browser's console to see what's happening.
+	<div id="message">
+		Check the browser's console to see what's happening.
+	</div>
+	<div id="test_item">
+		This should load some ajax content, or pull it from cache
+	</div>
 </body>
 </html>

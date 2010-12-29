@@ -241,11 +241,16 @@ var jsdb = (function(){
 	var _cookieStorage = (function(){
 		var Cookie = (function(){
 			return {
-				set:function(name,value) {
-					var expires = "";
+				set:function(name,value,session_only) {
+					if (session_only) {
+						var expires = "";
+					}else{
+						var date = new Date();
+						date.setDate( date.getYear()+3, date.getMonth(), date.getDate() );
+						var expires = "; expires="+date.toGMTString();
+					}
 					document.cookie = name+"="+value+expires+"; path=/";
 				},
-
 			  	get:function(name) {
 					var nameEQ = name + "=";
 					var ca = document.cookie.split(';');
@@ -266,8 +271,8 @@ var jsdb = (function(){
 			};
 		})();
 		return {
-			setItem:function( key, val ) {
-				return Cookie.set( key, val );
+			setItem:function( key, val, session_lifetime ) {
+				return Cookie.set( key, val, session_lifetime );
 			},
 			getItem:function( key ) {
 				return Cookie.get( key );
@@ -292,14 +297,23 @@ var jsdb = (function(){
 	})();
 	
 	return {
+		// setup defaults
+		engines:['localStorage', 'cookies', 'sessionStorage'],
 		storage:localStorage,
 		storage_engine:'localStorage',
 		support:false,
+		init:function(){
+			this.supported();
+		},
 		force_engine:function(eng){
 			switch(eng){
 				case "localStorage":
 					this.storage_engine = "localStorage";
 					this.storage = localStorage;
+					break;
+				case "sessionStorage":
+					this.storage_engine = "sessionStorage";
+					this.storage = sessionStorage;
 					break;
 				case 'cookie':
 					this.storage_engine = "cookie";
@@ -310,34 +324,68 @@ var jsdb = (function(){
 					this.storage = _cookieStorage;
 					break;
 			}
+			// call this to fallback if new engine is not supported
+			this.supported();
 			return this.storage_engine;
 		},
 		supported:function() {
-			this.support = ( localStorage !== "undefined" );
+			this.support = ( this.storage !== "undefined" );
 			if(!this.support){
 				this.storage_engine = "cookie";
 				this.storage = _cookieStorage;
 			}
 			return this.support;
 		},
-		set:function( key, val ) {
+		set:function( key, val, session_lifetime ) {
+			session_lifetime = (typeof session_lifetime === "undefined") ? false : true;
 			var stringified = JSON.stringify( val );
-			this.storage.setItem( key, stringified );
+			if(session_lifetime && this.storage_engine !== "sessionStorage"){
+				var previous = this.storage_engine;
+				this.force_engine( 'sessionStorage' );
+				this.storage.setItem( key, stringified, session_lifetime );
+				this.force_engine( previous );
+			} else {
+				this.storage.setItem( key, stringified, session_lifetime );
+			}
 		},
 		raw_value:function( key ) {
 			return this.storage.getItem( key );
 		},
-		get:function( key ) {
-			return JSON.parse(
+		get:function( key , callback ) {
+			var parsed_data = JSON.parse(
 				this.raw_value( key )
 			);
+			if( parsed_data === null ) {
+				var x = 0, original_engine = this.storage_engine;
+				while( parsed_data === null && x < this.engines.length ) {
+					this.force_engine( this.engines[x] );
+					parsed_data = JSON.parse(
+						this.raw_value( key )
+					);
+					x++;
+				}
+				this.force_engine( original_engine );
+			}
+			if( !parsed_data ) {
+				return this.error( "No value found for key: " + key );
+			}
+			if( typeof callback === "function" ) {
+				return callback.call( this, parsed_data );
+			} else {
+				return parsed_data;
+			}
+		},
+		error:function( msg ) {
+			if( console ) {
+				console.error(msg);
+			}
+			return msg;
 		},
 		remove:function( key ) {
 			this.storage.removeItem( key );
 		},
 		remove_item:function( key, ind ) {
-			var temp_o = this.get( key );
-			var is_object = false;
+			var temp_o = this.get( key ), is_object = false;
 			if (( typeof temp_o === "object" ) && ( typeof temp_o.splice !== "function" )) {
 				is_object = true;
 			}	
