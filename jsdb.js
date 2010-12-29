@@ -237,19 +237,96 @@ var jsdb = (function(){
 	        };
 	    }
 	}());
+	
+	var _cookieStorage = (function(){
+		var Cookie = (function(){
+			return {
+				set:function(name,value) {
+					var expires = "";
+					document.cookie = name+"="+value+expires+"; path=/";
+				},
+
+			  	get:function(name) {
+					var nameEQ = name + "=";
+					var ca = document.cookie.split(';');
+					for(var i=0;i < ca.length;i++) {
+						var c = ca[i];
+						while (c.charAt(0)==' ') {
+							c = c.substring(1, c.length);
+						} 
+						if (c.indexOf(nameEQ) == 0) {
+							return c.substring(nameEQ.length,c.length);
+						}
+					}
+					return null;
+				},
+				remove:function(name) {
+					set(name,"",-1);
+				}
+			};
+		})();
+		return {
+			setItem:function( key, val ) {
+				return Cookie.set( key, val );
+			},
+			getItem:function( key ) {
+				return Cookie.get( key );
+			},
+			removeItem:function( key ) {
+				return Cookie.remove( key );
+			}
+		};
+	})();
+
+	/**
+	*	@todo According to some, I should explore the ie userdata model to add another fallback layer for persistent storage,
+	*		I don't feel like messing with IE today...
+	*/
+	var _userdataStorage = (function(){
+		var UserData = (function(){
+			// private getters and setters for userdata
+		})();
+		return {
+			// return unified API to userdata getItem, setItem, removeItem
+		};
+	})();
+	
 	return {
-		ls:localStorage,
+		storage:localStorage,
+		storage_engine:'localStorage',
 		support:false,
+		force_engine:function(eng){
+			switch(eng){
+				case "localStorage":
+					this.storage_engine = "localStorage";
+					this.storage = localStorage;
+					break;
+				case 'cookie':
+					this.storage_engine = "cookie";
+					this.storage = _cookieStorage;
+					break;
+				default:
+					this.storage_engine = "cookie";
+					this.storage = _cookieStorage;
+					break;
+			}
+			return this.storage_engine;
+		},
 		supported:function() {
 			this.support = ( localStorage !== "undefined" );
+			if(!this.support){
+				this.storage_engine = "cookie";
+				this.storage = _cookieStorage;
+			}
+			console.log(this.storage);
 			return this.support;
 		},
 		set:function( key, val ) {
 			var stringified = JSON.stringify( val );
-			this.ls.setItem( key, stringified );
+			this.storage.setItem( key, stringified );
 		},
 		raw_value:function( key ) {
-			return this.ls.getItem( key );
+			return this.storage.getItem( key );
 		},
 		get:function( key ) {
 			return JSON.parse(
@@ -257,7 +334,7 @@ var jsdb = (function(){
 			);
 		},
 		remove:function( key ) {
-			this.ls.removeItem( key );
+			this.storage.removeItem( key );
 		},
 		remove_item:function( key, ind ) {
 			var temp_o = this.get( key );
@@ -276,7 +353,7 @@ var jsdb = (function(){
 			this.set( key, temp_o );
 		},
 		clear:function(){
-			this.ls.clear();
+			this.storage.clear();
 		}
 	};
 })();
