@@ -1,4 +1,4 @@
-This object wraps the HTML 5 localStorage engine to provide a simple interface using get and set methods.
+This object wraps the HTML 5 localStorage engine to provide a simple interface using get and set methods. It also provides a fallback storage engine to cookies if localStorage has not been implemented
 
 In addition to providing the simple string storage and retrieval built into localStorage, it extends this (with the help of JSON2.js from Douglas Crockford) by allowing:
 	- Checks for support with the db.supported() method
