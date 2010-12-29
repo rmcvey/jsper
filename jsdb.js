@@ -318,7 +318,6 @@ var jsdb = (function(){
 				this.storage_engine = "cookie";
 				this.storage = _cookieStorage;
 			}
-			console.log(this.storage);
 			return this.support;
 		},
 		set:function( key, val ) {
