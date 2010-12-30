@@ -2,36 +2,36 @@
 *	Global db object wraps localStorage
 *
 *	Check for support: returns true of false
-*		jsdb.supported()
+*		jstore.supported()
 *	Set the value for a key in local storage: no return value
-*		jsdb.set(key [string], value [any data type])
-*			- jsdb.set('foo', {a:'bar',b:{c:'baz'}});
-*			- jsdb.set('foo', 'bar');
-*			- jsdb.set('foo', ['a','b','c']);
+*		jstore.set(key [string], value [any data type])
+*			- jstore.set('foo', {a:'bar',b:{c:'baz'}});
+*			- jstore.set('foo', 'bar');
+*			- jstore.set('foo', ['a','b','c']);
 *	
 *	Retrieve data stored in a key: returns stored item in original state, null if not found
-*		jsdb.get(key [string])
-*			- jsdb.get('foo');
+*		jstore.get(key [string])
+*			- jstore.get('foo');
 *
 *	Remove an entire key: no return value
-*		jsdb.remove(key [string]);
+*		jstore.remove(key [string]);
 *
 *	Remove an item from a stored array or object: no return value
-*		jsdb.remove_item(key [string], index [integer|string]);
-*			- jsdb.set('foo', ['a','b','c']);
-*   		  jsdb.remove_item('foo', 1);
-*   		  jsdb.get('foo');
+*		jstore.remove_item(key [string], index [integer|string]);
+*			- jstore.set('foo', ['a','b','c']);
+*   		  jstore.remove_item('foo', 1);
+*   		  jstore.get('foo');
 *   		  //returns ['a','c']
 *   		
-*			- jsdb.set('foo', {a:'bar',b:{c:'baz'}});
-*   		  jsdb.remove_item('foo', 'a');
-*   		  jsdb.get('foo');
+*			- jstore.set('foo', {a:'bar',b:{c:'baz'}});
+*   		  jstore.remove_item('foo', 'a');
+*   		  jstore.get('foo');
 *   		  //returns {b:{c:'baz'}}
 *
 *	Remove entire contents of storage: no return value
-*		jsdb.clear()
+*		jstore.clear()
 */
-var jsdb = (function(){
+var jstore = (function(){
 	var JSON = {};
 	(function () {
 	    "use strict";
@@ -257,7 +257,6 @@ var jsdb = (function(){
 					document.cookie = name+"="+value+expires+"; path=/";
 				},
 				destroy:function(name){
-					console.log("Destroying: %s", name);
 					var date = new Date();
 					date.setTime(date.getTime()+(-1*24*60*60*1000));
 					expires = "; expires="+date.toGMTString();
@@ -281,7 +280,6 @@ var jsdb = (function(){
 					set(name,"");
 				},
 				clear:function() {
-					console.log("HERE");
 					var all = document.cookie.split('; ');
 					var len = all.length;
 					for( var i = 0 ; i < len; i++) {
@@ -394,7 +392,8 @@ var jsdb = (function(){
 				this.force_engine( original_engine );
 			}
 			if( !parsed_data ) {
-				return this.error( "No value found for key: " + key );
+				this.error( "No value found for key: " + key );
+				return null;
 			}
 			if( typeof callback === "function" ) {
 				return callback.call( this, parsed_data );
@@ -410,10 +409,7 @@ var jsdb = (function(){
 			return collection;
 		},
 		error:function( msg ) {
-			if( console ) {
-				console.error(msg);
-			}
-			return msg;
+			console.error( msg );
 		},
 		remove:function( key ) {
 			this.storage.removeItem( key );
