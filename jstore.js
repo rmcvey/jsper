@@ -357,6 +357,7 @@ var jstore = (function(){
 			if(!this.support){
 				this.storage_engine = "cookie";
 				this.storage = _cookieStorage;
+                                this.support = true;
 			}
 			return this.support;
 		},
@@ -373,6 +374,22 @@ var jstore = (function(){
 			}
 			return this;
 		},
+                each:function( key, fn ){
+                        var that = this;
+                        var items = this.get( key );
+                        if(typeof fn == "function") {
+                            if(typeof items.splice === "function"){
+                                for(var i = 0; i < items.length; i++){
+                                    items[i] = fn.call(that, items[i]);
+                                }
+                            } else if (typeof items === "object") {
+                                for(var i in items){
+                                    items[i] = fn.call(items[i]);
+                                }
+                            }
+                        }
+                        return this;
+                },
 		raw_value:function( key ) {
 			return this.storage.getItem( key );
 		},
