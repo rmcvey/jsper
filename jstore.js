@@ -8,7 +8,7 @@
 *			- jstore.set('foo', {a:'bar',b:{c:'baz'}});
 *			- jstore.set('foo', 'bar');
 *			- jstore.set('foo', ['a','b','c']);
-*	
+*
 *	Retrieve data stored in a key: returns stored item in original state, null if not found
 *		jstore.get(key [string])
 *			- jstore.get('foo');
@@ -22,7 +22,7 @@
 *   		  jstore.remove_item('foo', 1);
 *   		  jstore.get('foo');
 *   		  //returns ['a','c']
-*   		
+*
 *			- jstore.set('foo', {a:'bar',b:{c:'baz'}});
 *   		  jstore.remove_item('foo', 'a');
 *   		  jstore.get('foo');
@@ -64,7 +64,7 @@ var jstore = (function(){
 	        escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
 	        gap,
 	        indent,
-	        meta = {    
+	        meta = {
 	            '\b': '\\b',
 	            '\t': '\\t',
 	            '\n': '\\n',
@@ -87,9 +87,9 @@ var jstore = (function(){
 	    }
 
 	    function str(key, holder) {
-	        var i,          
-	            k,          
-	            v,          
+	        var i,
+	            k,
+	            v,
 	            length,
 	            mind = gap,
 	            partial,
@@ -237,7 +237,7 @@ var jstore = (function(){
 	        };
 	    }
 	}());
-	
+
 	var _cookieStorage = (function(){
 		var Cookie = (function(){
 			return {
@@ -248,7 +248,7 @@ var jstore = (function(){
 					} else if(session_only === 'remove') {
 						var date = new Date();
 						date.setTime(date.getTime()+(-1*24*60*60*1000));
-						expires = "; expires="+date.toGMTString();		
+						expires = "; expires="+date.toGMTString();
 					} else {
 						var date = new Date();
 						date.setDate( date.getYear()+8, date.getMonth(), date.getDate() );
@@ -269,7 +269,7 @@ var jstore = (function(){
 						var c = ca[i];
 						while (c.charAt(0)==' ') {
 							c = c.substring(1, c.length);
-						} 
+						}
 						if (c.indexOf(nameEQ) == 0) {
 							return c.substring(nameEQ.length,c.length);
 						}
@@ -319,7 +319,19 @@ var jstore = (function(){
 			// return unified API to userdata getItem, setItem, removeItem
 		};
 	})();
-	
+
+        var _is_object = function( o ){
+            return typeof o === "object" && typeof o.splice !== "function";
+        };
+
+        var _is_array = function( o ){
+            return typeof o === "object" && typeof o.splice === "function";
+        };
+
+        var callable = function( fn ){
+            return typeof fn === "function";
+        };
+        
 	return {
 		// setup defaults
 		engines:['localStorage', 'cookie', 'sessionStorage'],
@@ -357,7 +369,6 @@ var jstore = (function(){
 			if(!this.support){
 				this.storage_engine = "cookie";
 				this.storage = _cookieStorage;
-                                this.support = true;
 			}
 			return this.support;
 		},
@@ -370,21 +381,21 @@ var jstore = (function(){
 				this.storage.setItem( key, stringified, session_lifetime );
 				this.force_engine( previous );
 			} else {
-				this.storage.setItem( key, stringified, session_lifetime );
+				this.storage.setItem( key, stringified );
 			}
 			return this;
 		},
                 each:function( key, fn ){
                         var that = this;
                         var items = this.get( key );
-                        if(typeof fn == "function") {
-                            if(typeof items.splice === "function"){
+                        if(callable(fn)) {
+                            if(_is_array(items)){
                                 for(var i = 0; i < items.length; i++){
-                                    items[i] = fn.call(that, items[i]);
+                                    items[i] = fn.call(that, items[i], i);
                                 }
-                            } else if (typeof items === "object") {
+                            } else if (_is_object(items)) {
                                 for(var i in items){
-                                    items[i] = fn.call(items[i]);
+                                    items[i] = fn.call(that, items[i], i);
                                 }
                             }
                         }
@@ -393,7 +404,7 @@ var jstore = (function(){
 		raw_value:function( key ) {
 			return this.storage.getItem( key );
 		},
-		get:function( key , callback ) {
+		get:function( key , callback, context ) {
 			var parsed_data = JSON.parse(
 				this.raw_value( key )
 			);
@@ -412,7 +423,7 @@ var jstore = (function(){
 				this.error( "No value found for key: " + key );
 				return null;
 			}
-			if( typeof callback === "function" ) {
+			if( callable( callback ) ) {
 				return callback.call( this, parsed_data );
 			} else {
 				return parsed_data;
@@ -425,27 +436,28 @@ var jstore = (function(){
 			}
 			return collection;
 		},
-		error:function( msg ) {
-			console.error( msg );
-		},
+		error:function( msg ) {},
 		remove:function( key ) {
 			this.storage.removeItem( key );
 			return this;
 		},
-		remove_item:function( key, ind ) {
-			var temp_o = this.get( key ), is_object = false;
-			if (( typeof temp_o === "object" ) && ( typeof temp_o.splice !== "function" )) {
-				is_object = true;
-			}	
-			if ( typeof temp_o.splice === "function" ) {
+		remove_item:function( key, ind, fn, context ) {
+			var temp_o = this.get( key );
+
+			if ( _is_array( temp_o ) ) {
 				temp_o.splice( ind, 1 );
-			} else if ( is_object ) {
+			} else if ( _is_object( temp_o ) ) {
 				delete temp_o[ ind ];
 			} else {
 				this.remove( key )
 			}
 			//reset the new object to the db key
 			this.set( key, temp_o );
+
+                        if( callable( fn ) ){
+                            context = context || this;
+                            fn.call(context);
+                        }
 			return this;
 		},
 		clear:function(){
