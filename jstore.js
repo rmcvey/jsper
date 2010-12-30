@@ -32,211 +32,214 @@
 *		jstore.clear()
 */
 var jstore = (function(){
-	var JSON = {};
-	(function () {
-	    "use strict";
+	if(typeof JSON === "undefined"){
+            var JSON = {};
+            (function () {
+                "use strict";
 
-	    function f(n) {
-	        return n < 10 ? '0' + n : n;
-	    }
+                function f(n) {
+                    return n < 10 ? '0' + n : n;
+                }
 
-	    if (typeof Date.prototype.toJSON !== 'function') {
+                if (typeof Date.prototype.toJSON !== 'function') {
 
-	        Date.prototype.toJSON = function (key) {
+                    Date.prototype.toJSON = function (key) {
 
-	            return isFinite(this.valueOf()) ?
-	                   this.getUTCFullYear()   + '-' +
-	                 f(this.getUTCMonth() + 1) + '-' +
-	                 f(this.getUTCDate())      + 'T' +
-	                 f(this.getUTCHours())     + ':' +
-	                 f(this.getUTCMinutes())   + ':' +
-	                 f(this.getUTCSeconds())   + 'Z' : null;
-	        };
+                        return isFinite(this.valueOf()) ?
+                               this.getUTCFullYear()   + '-' +
+                             f(this.getUTCMonth() + 1) + '-' +
+                             f(this.getUTCDate())      + 'T' +
+                             f(this.getUTCHours())     + ':' +
+                             f(this.getUTCMinutes())   + ':' +
+                             f(this.getUTCSeconds())   + 'Z' : null;
+                    };
 
-	        String.prototype.toJSON =
-	        Number.prototype.toJSON =
-	        Boolean.prototype.toJSON = function (key) {
-	            return this.valueOf();
-	        };
-	    }
+                    String.prototype.toJSON =
+                    Number.prototype.toJSON =
+                    Boolean.prototype.toJSON = function (key) {
+                        return this.valueOf();
+                    };
+                }
 
-	    var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-	        escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-	        gap,
-	        indent,
-	        meta = {
-	            '\b': '\\b',
-	            '\t': '\\t',
-	            '\n': '\\n',
-	            '\f': '\\f',
-	            '\r': '\\r',
-	            '"' : '\\"',
-	            '\\': '\\\\'
-	        },
-	        rep;
+                var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+                    escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+                    gap,
+                    indent,
+                    meta = {
+                        '\b': '\\b',
+                        '\t': '\\t',
+                        '\n': '\\n',
+                        '\f': '\\f',
+                        '\r': '\\r',
+                        '"' : '\\"',
+                        '\\': '\\\\'
+                    },
+                    rep;
 
-	    function quote(string) {
-	        escapable.lastIndex = 0;
-	        return escapable.test(string) ?
-	            '"' + string.replace(escapable, function (a) {
-	                var c = meta[a];
-	                return typeof c === 'string' ? c :
-	                    '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-	            }) + '"' :
-	            '"' + string + '"';
-	    }
+                function quote(string) {
+                    escapable.lastIndex = 0;
+                    return escapable.test(string) ?
+                        '"' + string.replace(escapable, function (a) {
+                            var c = meta[a];
+                            return typeof c === 'string' ? c :
+                                '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+                        }) + '"' :
+                        '"' + string + '"';
+                }
 
-	    function str(key, holder) {
-	        var i,
-	            k,
-	            v,
-	            length,
-	            mind = gap,
-	            partial,
-	            value = holder[key];
+                function str(key, holder) {
+                    var i,
+                        k,
+                        v,
+                        length,
+                        mind = gap,
+                        partial,
+                        value = holder[key];
 
-	        if (value && typeof value === 'object' &&
-	                typeof value.toJSON === 'function') {
-	            value = value.toJSON(key);
-	        }
+                    if (value && typeof value === 'object' &&
+                            typeof value.toJSON === 'function') {
+                        value = value.toJSON(key);
+                    }
 
-	        if (typeof rep === 'function') {
-	            value = rep.call(holder, key, value);
-	        }
+                    if (typeof rep === 'function') {
+                        value = rep.call(holder, key, value);
+                    }
 
-	        switch (typeof value) {
-	        case 'string':
-	            return quote(value);
+                    switch (typeof value) {
+                    case 'string':
+                        return quote(value);
 
-	        case 'number':
-	            return isFinite(value) ? String(value) : 'null';
+                    case 'number':
+                        return isFinite(value) ? String(value) : 'null';
 
-	        case 'boolean':
-	        case 'null':
-	            return String(value);
+                    case 'boolean':
+                    case 'null':
+                        return String(value);
 
-	        case 'object':
+                    case 'object':
 
-	            if (!value) {
-	                return 'null';
-	            }
-	            gap += indent;
-	            partial = [];
+                        if (!value) {
+                            return 'null';
+                        }
+                        gap += indent;
+                        partial = [];
 
-	            if (Object.prototype.toString.apply(value) === '[object Array]') {
-	                length = value.length;
-	                for (i = 0; i < length; i += 1) {
-	                    partial[i] = str(i, value) || 'null';
-	                }
+                        if (Object.prototype.toString.apply(value) === '[object Array]') {
+                            length = value.length;
+                            for (i = 0; i < length; i += 1) {
+                                partial[i] = str(i, value) || 'null';
+                            }
 
-	                v = partial.length === 0 ? '[]' :
-	                    gap ? '[\n' + gap +
-	                            partial.join(',\n' + gap) + '\n' +
-	                                mind + ']' :
-	                          '[' + partial.join(',') + ']';
-	                gap = mind;
-	                return v;
-	            }
-	            if (rep && typeof rep === 'object') {
-	                length = rep.length;
-	                for (i = 0; i < length; i += 1) {
-	                    k = rep[i];
-	                    if (typeof k === 'string') {
-	                        v = str(k, value);
-	                        if (v) {
-	                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
-	                        }
-	                    }
-	                }
-	            } else {
-	                for (k in value) {
-	                    if (Object.hasOwnProperty.call(value, k)) {
-	                        v = str(k, value);
-	                        if (v) {
-	                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
-	                        }
-	                    }
-	                }
-	            }
+                            v = partial.length === 0 ? '[]' :
+                                gap ? '[\n' + gap +
+                                        partial.join(',\n' + gap) + '\n' +
+                                            mind + ']' :
+                                      '[' + partial.join(',') + ']';
+                            gap = mind;
+                            return v;
+                        }
+                        if (rep && typeof rep === 'object') {
+                            length = rep.length;
+                            for (i = 0; i < length; i += 1) {
+                                k = rep[i];
+                                if (typeof k === 'string') {
+                                    v = str(k, value);
+                                    if (v) {
+                                        partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                                    }
+                                }
+                            }
+                        } else {
+                            for (k in value) {
+                                if (Object.hasOwnProperty.call(value, k)) {
+                                    v = str(k, value);
+                                    if (v) {
+                                        partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                                    }
+                                }
+                            }
+                        }
 
-	            v = partial.length === 0 ? '{}' :
-	                gap ? '{\n' + gap + partial.join(',\n' + gap) + '\n' +
-	                        mind + '}' : '{' + partial.join(',') + '}';
-	            gap = mind;
-	            return v;
-	        }
-	    }
+                        v = partial.length === 0 ? '{}' :
+                            gap ? '{\n' + gap + partial.join(',\n' + gap) + '\n' +
+                                    mind + '}' : '{' + partial.join(',') + '}';
+                        gap = mind;
+                        return v;
+                    }
+                }
 
-	    if (typeof JSON.stringify !== 'function') {
-	        JSON.stringify = function (value, replacer, space) {
+                if (typeof JSON.stringify !== 'function') {
+                    JSON.stringify = function (value, replacer, space) {
 
-	            var i;
-	            gap = '';
-	            indent = '';
+                        var i;
+                        gap = '';
+                        indent = '';
 
-	            if (typeof space === 'number') {
-	                for (i = 0; i < space; i += 1) {
-	                    indent += ' ';
-	                }
+                        if (typeof space === 'number') {
+                            for (i = 0; i < space; i += 1) {
+                                indent += ' ';
+                            }
 
-	            } else if (typeof space === 'string') {
-	                indent = space;
-	            }
+                        } else if (typeof space === 'string') {
+                            indent = space;
+                        }
 
-	            rep = replacer;
-	            if (replacer && typeof replacer !== 'function' &&
-	                    (typeof replacer !== 'object' ||
-	                     typeof replacer.length !== 'number')) {
-	                throw new Error('JSON.stringify');
-	            }
+                        rep = replacer;
+                        if (replacer && typeof replacer !== 'function' &&
+                                (typeof replacer !== 'object' ||
+                                 typeof replacer.length !== 'number')) {
+                            throw new Error('JSON.stringify');
+                        }
 
-	            return str('', {'': value});
-	        };
-	    }
+                        return str('', {'': value});
+                    };
+                }
 
-	    if (typeof JSON.parse !== 'function') {
-	        JSON.parse = function (text, reviver) {
-	            var j;
+                if (typeof JSON.parse !== 'function') {
+                    JSON.parse = function (text, reviver) {
+                        var j;
 
-	            function walk(holder, key) {
+                        function walk(holder, key) {
 
-	                var k, v, value = holder[key];
-	                if (value && typeof value === 'object') {
-	                    for (k in value) {
-	                        if (Object.hasOwnProperty.call(value, k)) {
-	                            v = walk(value, k);
-	                            if (v !== undefined) {
-	                                value[k] = v;
-	                            } else {
-	                                delete value[k];
-	                            }
-	                        }
-	                    }
-	                }
-	                return reviver.call(holder, key, value);
-	            }
+                            var k, v, value = holder[key];
+                            if (value && typeof value === 'object') {
+                                for (k in value) {
+                                    if (Object.hasOwnProperty.call(value, k)) {
+                                        v = walk(value, k);
+                                        if (v !== undefined) {
+                                            value[k] = v;
+                                        } else {
+                                            delete value[k];
+                                        }
+                                    }
+                                }
+                            }
+                            return reviver.call(holder, key, value);
+                        }
 
-	            text = String(text);
-	            cx.lastIndex = 0;
-	            if (cx.test(text)) {
-	                text = text.replace(cx, function (a) {
-	                    return '\\u' +
-	                        ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-	                });
-	            }
+                        text = String(text);
+                        cx.lastIndex = 0;
+                        if (cx.test(text)) {
 
-	            if (/^[\],:{}\s]*$/
-	.test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@')
-	.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
-	.replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-	                j = eval('(' + text + ')');
-	                return typeof reviver === 'function' ?
-	                    walk({'': j}, '') : j;
-	            }
-	            throw new SyntaxError('JSON.parse');
-	        };
-	    }
-	}());
+                            text = text.replace(cx, function (a) {
+                                return '\\u' +
+                                    ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+                            });
+                        }
+
+                        if (/^[\],:{}\s]*$/
+            .test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@')
+            .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
+            .replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+                            j = eval('(' + text + ')');
+                            return typeof reviver === 'function' ?
+                                walk({'': j}, '') : j;
+                        }
+                        throw new SyntaxError('JSON.parse');
+                    };
+                }
+            }());
+        }
 
 	var _cookieStorage = (function(){
 		var Cookie = (function(){
@@ -321,7 +324,7 @@ var jstore = (function(){
 	})();
 
         var _is_object = function( o ){
-            return typeof o === "object" && typeof o.splice !== "function";
+            return (o !== null &&  typeof o === "object" && typeof o.splice !== "function");
         };
 
         var _is_array = function( o ){
@@ -329,13 +332,28 @@ var jstore = (function(){
         };
 
         var callable = function( fn ){
-            return typeof fn === "function";
+            return typeof fn !== "undefined" && typeof fn === "function";
         };
-        
-	return {
+
+        var _supports_html5_storage = function(){
+            try {
+                return 'localStorage' in window && window['localStorage'] !== null;
+            } catch (e) {
+                return false;
+            }
+        };
+        var _supports_html5_sessionStorage = function(){
+            try {
+                return 'sessionStorage' in window && window['sessionStorage'] !== null;
+            } catch (e) {
+                return false;
+            }
+        };
+
+        return {
 		// setup defaults
 		engines:['localStorage', 'cookie', 'sessionStorage'],
-		storage:localStorage,
+		storage:(_supports_html5_storage()) ? localStorage : _cookieStorage,
 		storage_engine:'localStorage',
 		support:false,
 		init:function(){
@@ -344,13 +362,17 @@ var jstore = (function(){
 		force_engine:function(eng){
 			switch(eng){
 				case "localStorage":
+                                    if(_supports_html5_storage()){
 					this.storage_engine = "localStorage";
 					this.storage = localStorage;
 					break;
+                                    }
 				case "sessionStorage":
+                                    if(_supports_html5_sessionStorage()){
 					this.storage_engine = "sessionStorage";
 					this.storage = sessionStorage;
 					break;
+                                    }
 				case 'cookie':
 					this.storage_engine = "cookie";
 					this.storage = _cookieStorage;
@@ -365,16 +387,18 @@ var jstore = (function(){
 			return this;
 		},
 		supported:function() {
-			this.support = ( this.storage !== "undefined" );
+			this.support = ( _supports_html5_storage( ) );
 			if(!this.support){
 				this.storage_engine = "cookie";
 				this.storage = _cookieStorage;
+                                this.support = true;
 			}
 			return this.support;
 		},
 		set:function( key, val, session_lifetime ) {
 			session_lifetime = (typeof session_lifetime === "undefined") ? false : true;
 			var stringified = JSON.stringify( val );
+
 			if(session_lifetime && this.storage_engine !== "sessionStorage"){
 				var previous = this.storage_engine;
 				this.force_engine( 'sessionStorage' );
@@ -388,9 +412,13 @@ var jstore = (function(){
                 each:function( key, fn ){
                         var that = this;
                         var items = this.get( key );
-                        if(callable(fn)) {
+                        if(navigator.userAgent.indexOf('Chrome') !== -1){
+                            items = [items];
+                        }
+                        if(callable(fn) && items !== null) {
                             if(_is_array(items)){
                                 for(var i = 0; i < items.length; i++){
+                                    
                                     items[i] = fn.call(that, items[i], i);
                                 }
                             } else if (_is_object(items)) {
