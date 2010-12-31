@@ -413,16 +413,15 @@ var jstore = (function(){
                         var that = this;
                         var items = this.get( key );
                         if(navigator.userAgent.indexOf('Chrome') !== -1){
-                            items = [items];
+                            //items = [items];
                         }
                         if(callable(fn) && items !== null) {
                             if(_is_array(items)){
                                 for(var i = 0; i < items.length; i++){
-                                    
                                     items[i] = fn.call(that, items[i], i);
                                 }
-                            } else if (_is_object(items)) {
-                                for(var i in items){
+                            } else if (_is_object(items) && items !== null) {
+                                for(var i in items){                                
                                     items[i] = fn.call(that, items[i], i);
                                 }
                             }
