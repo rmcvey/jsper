@@ -18,7 +18,7 @@ jsper has been unit tested in IE6,7,8/Firefox 2,3,4/Chrome/Safari
 More available at the wiki: http://github.com/rmcvey/jsper/wiki/
 
 ### Getting and Setting
-<code>
+<pre class="prettyprint">
 jsper.set('foo', {bar:'baz',boz:{bez:'biz'}});
 //jsper.get returns the type of object you gave it; in this case, an object
 var my_object = jsper.get('foo');
@@ -26,10 +26,10 @@ var my_object = jsper.get('foo');
 jsper.set('arr', ['a', 'b', 'c', 'd']);
 // returns an array
 var my_array = jsper.get('arr');
-</code>
+</pre>
 
 ### Iterating
-<code>
+<pre class="prettyprint">
 // set an array in storage
 jsper.set('an_array', ['This', 'is', 'pretty', 'cool']);
 
@@ -41,10 +41,10 @@ jsper.each('an_array', function(data, index){
 });
 
 console.log(message);//outputs: "This is pretty cool"
-</code>
+</pre>
 
 ### Overloaded Methods
-<code>
+<pre class="prettyprint">
 var multiple_keys = {
    first:['a', 'b', 'c'],
    second:['d','e','f']
@@ -60,4 +60,4 @@ var first_and_second = jsper.get(['first','second']);
 jsper.each(['first'. 'second'], function(data, index){
    console.log(" %s", data);//output: a b c d e f
 });
-</code>
+</pre>
