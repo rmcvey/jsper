@@ -2,36 +2,36 @@
 *	Global db object wraps localStorage
 *
 *	Check for support: returns true of false
-*		jstore.supported()
+*		jsper.supported()
 *	Set the value for a key in local storage: no return value
-*		jstore.set(key [string], value [any data type])
-*			- jstore.set('foo', {a:'bar',b:{c:'baz'}});
-*			- jstore.set('foo', 'bar');
-*			- jstore.set('foo', ['a','b','c']);
+*		jsper.set(key [string], value [any data type])
+*			- jsper.set('foo', {a:'bar',b:{c:'baz'}});
+*			- jsper.set('foo', 'bar');
+*			- jsper.set('foo', ['a','b','c']);
 *
 *	Retrieve data stored in a key: returns stored item in original state, null if not found
-*		jstore.get(key [string])
-*			- jstore.get('foo');
+*		jsper.get(key [string])
+*			- jsper.get('foo');
 *
 *	Remove an entire key: no return value
-*		jstore.remove(key [string]);
+*		jsper.remove(key [string]);
 *
 *	Remove an item from a stored array or object: no return value
-*		jstore.remove_item(key [string], index [integer|string]);
-*			- jstore.set('foo', ['a','b','c']);
-*   		  jstore.remove_item('foo', 1);
-*   		  jstore.get('foo');
+*		jsper.remove_item(key [string], index [integer|string]);
+*			- jsper.set('foo', ['a','b','c']);
+*   		  jsper.remove_item('foo', 1);
+*   		  jsper.get('foo');
 *   		  //returns ['a','c']
 *
-*			- jstore.set('foo', {a:'bar',b:{c:'baz'}});
-*   		  jstore.remove_item('foo', 'a');
-*   		  jstore.get('foo');
+*			- jsper.set('foo', {a:'bar',b:{c:'baz'}});
+*   		  jsper.remove_item('foo', 'a');
+*   		  jsper.get('foo');
 *   		  //returns {b:{c:'baz'}}
 *
 *	Remove entire contents of storage: no return value
-*		jstore.clear()
+*		jsper.clear()
 */
-var jstore = (function(){
+var jsper = (function(){
 	if(typeof JSON === "undefined"){
             var JSON = {};
             (function () {
@@ -241,24 +241,54 @@ var jstore = (function(){
             }());
         }
 
+        /**
+         *  Internal cookie storage engine
+         */
 	var cookieStorage = (function(){
 		var Cookie = (function(){
+                        var _c_separator = "::", _prefix = "cookieStorage_";
 			return {
+                                index:0,
+                                length_cookie:"length_cookieStorage",
+                                load_all:function(){
+
+                                },
 				set:function(name,value,session_only) {
 					var expires;
+                                        var date = new Date();
 					if (session_only === true) {
 						expires = "";
 					} else if(session_only === 'remove') {
-						var date = new Date();
 						date.setTime(date.getTime()+(-1*24*60*60*1000));
 						expires = "; expires="+date.toGMTString();
 					} else {
-						var date = new Date();
 						date.setDate( date.getYear()+8, date.getMonth(), date.getDate() );
 						expires = "; expires="+date.toGMTString();
 					}
-					document.cookie = name+"="+value+expires+"; path=/";
+					document.cookie = name+"="+value+expires+"; path=/;";
+                                        if(value !== ""){
+                                            ++this.index;
+                                        } else {
+                                            var index = name.match(/cookieStorage_([0-9]*)/)[1];
+                                            --this.index;
+                                            this._reset_keys(index);
+                                        }
+                                        this.set(this.length_cookie, this.index);
 				},
+                                _by_numeric_key:function(index){
+
+                                },
+                                _reset_keys:function(index){
+                                        var length = this.get( this.length_cookie );
+                                        for( i = index; i < length; i++ ) {
+                                            if( this.get(_prefix+i) === "" ) {
+                                                if(i != length-1 && this.get(_prefix+(i+1))){
+                                                    this.set(_prefix+i, this.get(_prefix+(i+1)));
+                                                    this.set(_prefix+(i+1), "", -1);
+                                                }
+                                            }
+                                        }
+                                },
 				destroy:function(name){
 					var date = new Date();
 					date.setTime(date.getTime()+(-1*24*60*60*1000));
@@ -280,7 +310,7 @@ var jstore = (function(){
 					return null;
 				},
 				remove:function(name) {
-					set(name,"");
+					this.set(name,"");
 				},
 				clear:function() {
 					var all = document.cookie.split('; ');
@@ -298,7 +328,7 @@ var jstore = (function(){
 				return Cookie.set( key, val, session_lifetime );
 			},
 			getItem:function( key ) {
-				return Cookie.get( key );
+				return (Cookie.get( key ) !== "") ? Cookie.get( key ) : null;
 			},
 			removeItem:function( key ) {
 				return Cookie.remove( key );
@@ -306,23 +336,16 @@ var jstore = (function(){
 			clear:function() {
 				return Cookie.clear();
 			},
+                        key:function(index){
+                                return Cookie.get("cookieStorage_"+index) || null;
+                        },
 			length:document.cookie.split(';').length
 		};
 	})();
 
-	/**
-	*	@todo According to some, I should explore the ie userdata model to add another fallback layer for persistent storage,
-	*		I don't feel like messing with IE today...
-	*/
-	var _userdataStorage = (function(){
-		var UserData = (function(){
-			// private getters and setters for userdata
-		})();
-		return {
-			// return unified API to userdata getItem, setItem, removeItem
-		};
-	})();
-
+        /**
+         *  Helper methods
+         */
         var _is_object = function( o ){
             return (o !== null && typeof o === "object" && typeof o.splice !== "function");
         };
@@ -530,3 +553,6 @@ var jstore = (function(){
 		}
 	};
 })();
+if(typeof window.jQuery !== "undefined"){
+    jQuery.jsper = jsper;
+}
