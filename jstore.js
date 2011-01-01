@@ -500,7 +500,7 @@ var jstore = (function(){
 		},
 		remove_item:function( key, ind, callback, context ) {
 			var temp_o = this.get( key );
-                        var deleted_val = temp_o[ key ];
+                        var deleted_val = temp_o[ ind ];
 			if ( _is_array( temp_o ) ) {
 				temp_o.splice( ind, 1 );
 			} else if ( _is_object( temp_o ) ) {
