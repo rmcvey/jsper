@@ -52,7 +52,7 @@
       Wrapper around HTML 5 localStorage
     </div>
 
-    <p>jsper is a native implementation of HTML5 storage (localStorage and sessionStorage) that degrades quite gracefully all the way back to IE6 by using cookies. This is not a milestone, others have done this. What I've done differently is:
+    <pre>jsper is a native implementation of HTML5 storage (localStorage and sessionStorage) that degrades quite gracefully all the way back to IE6 by using cookies. This is not a milestone, others have done this. What I've done differently is:
 
 * created a better api to access localStorage using simple get, set methods 
 * provide automatic serialization/deserialization of storage items, i.e. what you put in is what you get back
@@ -114,16 +114,17 @@ var first_and_second = jsper.get(['first','second']);
 jsper.each(['first'. 'second'], function(data, index){
    console.log(" %s", data);//output: a b c d e f
 });
-```</p><h2>Install</h2>
+```
+</pre><h2>Install</h2>
 <p>
-<code>
+<pre>
 	<script type="text/javascript" src="/path/to/jsper.js"></script>
-</code>
+</pre>
 </p>
 <h2>License</h2>
 <p>MIT</p>
 <h2>Authors</h2>
-<p>rmcvey</p><br/><br/>      </p><br/>      </p>
+<p>rmcvey</p>
 
 
     <h2>Download</h2>
