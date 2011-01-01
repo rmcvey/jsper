@@ -241,7 +241,7 @@ var jstore = (function(){
             }());
         }
 
-	var _cookieStorage = (function(){
+	var cookieStorage = (function(){
 		var Cookie = (function(){
 			return {
 				set:function(name,value,session_only) {
@@ -324,36 +324,45 @@ var jstore = (function(){
 	})();
 
         var _is_object = function( o ){
-            return (o !== null &&  typeof o === "object" && typeof o.splice !== "function");
+            return (o !== null && typeof o === "object" && typeof o.splice !== "function");
         };
 
         var _is_array = function( o ){
             return typeof o === "object" && typeof o.splice === "function";
         };
 
-        var callable = function( fn ){
+        var _is_callable = function( fn ){
             return typeof fn !== "undefined" && typeof fn === "function";
         };
 
-        var _supports_html5_storage = function(){
-            try {
-                return 'localStorage' in window && window['localStorage'] !== null;
-            } catch (e) {
-                return false;
-            }
-        };
-        var _supports_html5_sessionStorage = function(){
-            try {
-                return 'sessionStorage' in window && window['sessionStorage'] !== null;
-            } catch (e) {
-                return false;
+        var supports = {
+            html5_storage:function(){
+                try {
+                    return 'localStorage' in window && window['localStorage'] !== null;
+                } catch (e) {
+                    return false;
+                }
+            },
+            html5_sessionStorage:function(){
+                try {
+                    return 'sessionStorage' in window && window['sessionStorage'] !== null;
+                } catch (e) {
+                    return false;
+                }
+            },
+            cookies:function(){
+                try{
+                    return navigator.cookieEnabled;
+                } catch (e) {
+                    return false;
+                }
             }
         };
 
         return {
 		// setup defaults
 		engines:['localStorage', 'cookie', 'sessionStorage'],
-		storage:(_supports_html5_storage()) ? localStorage : _cookieStorage,
+		storage:(supports.html5_storage()) ? localStorage : cookieStorage,
 		storage_engine:'localStorage',
 		support:false,
 		init:function(){
@@ -362,24 +371,24 @@ var jstore = (function(){
 		force_engine:function(eng){
 			switch(eng){
 				case "localStorage":
-                                    if(_supports_html5_storage()){
+                                    if(supports.html5_storage()){
 					this.storage_engine = "localStorage";
 					this.storage = localStorage;
 					break;
                                     }
 				case "sessionStorage":
-                                    if(_supports_html5_sessionStorage()){
+                                    if(supports.html5_sessionStorage()){
 					this.storage_engine = "sessionStorage";
 					this.storage = sessionStorage;
 					break;
                                     }
 				case 'cookie':
 					this.storage_engine = "cookie";
-					this.storage = _cookieStorage;
+					this.storage = cookieStorage;
 					break;
 				default:
 					this.storage_engine = "cookie";
-					this.storage = _cookieStorage;
+					this.storage = cookieStorage;
 					break;
 			}
 			// call this to fallback if new engine is not supported
@@ -387,42 +396,52 @@ var jstore = (function(){
 			return this;
 		},
 		supported:function() {
-			this.support = ( _supports_html5_storage( ) );
+			this.support = supports.html5_storage();
 			if(!this.support){
-				this.storage_engine = "cookie";
-				this.storage = _cookieStorage;
-                                this.support = true;
+                                if(supports.cookies){
+                                    this.storage_engine = "cookie";
+                                    this.storage = cookieStorage;
+                                    this.support = true;
+                                }
 			}
 			return this.support;
 		},
 		set:function( key, val, session_lifetime ) {
-			session_lifetime = (typeof session_lifetime === "undefined") ? false : true;
-			var stringified = JSON.stringify( val );
-
-			if(session_lifetime && this.storage_engine !== "sessionStorage"){
-				var previous = this.storage_engine;
-				this.force_engine( 'sessionStorage' );
-				this.storage.setItem( key, stringified, session_lifetime );
-				this.force_engine( previous );
-			} else {
-				this.storage.setItem( key, stringified );
-			}
+                        if( _is_object( key ) ) {
+                            for( var item in key ) {
+                                this.set(item, key[item]);
+                            }
+                        } else {
+                            session_lifetime = (typeof session_lifetime !== "undefined");
+                            var stringified = JSON.stringify( val );
+                            if(session_lifetime && this.storage_engine !== "sessionStorage"){
+                                    var previous = this.storage_engine;
+                                    this.force_engine( 'sessionStorage' );
+                                    this.storage.setItem( key, stringified, session_lifetime );
+                                    this.force_engine( previous );
+                            } else {
+                                    this.storage.setItem( key, stringified );
+                            }
+                        }
 			return this;
 		},
-                each:function( key, fn ){
-                        var that = this;
-                        var items = this.get( key );
-                        if(navigator.userAgent.indexOf('Chrome') !== -1){
-                            //items = [items];
-                        }
-                        if(callable(fn) && items !== null) {
-                            if(_is_array(items)){
-                                for(var i = 0; i < items.length; i++){
-                                    items[i] = fn.call(that, items[i], i);
-                                }
-                            } else if (_is_object(items) && items !== null) {
-                                for(var i in items){                                
-                                    items[i] = fn.call(that, items[i], i);
+                each:function( key, callback ) {
+                        if( _is_array( key ) ){
+                            for( var i = 0; i < key.length; i++ ) {
+                                this.each( key[i], callback );
+                            }
+                        } else {
+                            var that = this;
+                            var items = this.get( key );
+                            if(_is_callable( callback ) && items !== null) {
+                                if(_is_array(items)){
+                                    for(var i = 0; i < items.length; i++){
+                                        items[i] = callback.call(that, items[i], i);
+                                    }
+                                } else if (_is_object(items) && items !== null) {
+                                    for(var i in items){
+                                        items[i] = callback.call(that, items[i], i);
+                                    }
                                 }
                             }
                         }
@@ -432,34 +451,45 @@ var jstore = (function(){
 			return this.storage.getItem( key );
 		},
 		get:function( key , callback, context ) {
-			var parsed_data = JSON.parse(
-				this.raw_value( key )
-			);
-			if( parsed_data === null ) {
-				var x = 0, original_engine = this.storage_engine;
-				while( parsed_data === null && x < this.engines.length ) {
-					this.force_engine( this.engines[x] );
-					parsed_data = JSON.parse(
-						this.raw_value( key )
-					);
-					x++;
-				}
-				this.force_engine( original_engine );
-			}
-			if( !parsed_data ) {
-				this.error( "No value found for key: " + key );
-				return null;
-			}
-			if( callable( callback ) ) {
-				return callback.call( this, parsed_data );
-			} else {
-				return parsed_data;
-			}
+                        if( _is_array( key ) ) {
+                            var collection = [];
+                            for( var i = 0; i < key.length; i++ ){
+                                collection[i] = this.get( key[i] );
+                            }
+                            return collection;
+                        } else {
+                            var parsed_data = JSON.parse(
+                                    this.raw_value( key )
+                            );
+                            if( parsed_data === null ) {
+                                    var x = 0, original_engine = this.storage_engine;
+                                    while( parsed_data === null && x < this.engines.length ) {
+                                            this.force_engine( this.engines[x] );
+                                            parsed_data = JSON.parse(
+                                                    this.raw_value( key )
+                                            );
+                                            x++;
+                                    }
+                                    this.force_engine( original_engine );
+                            }
+                            if( !parsed_data ) {
+                                    this.error( "No value found for key: " + key );
+                                    return null;
+                            }
+                            if( _is_callable( callback ) ) {
+                                    context = context || this;
+                                    return callback.call( context, parsed_data );
+                            } else {
+                                    return parsed_data;
+                            }
+                        }
 		},
-		get_all:function(){
+		all:function() {
 			var collection = [];
 			for( var i = 0; i < this.storage.length; i++ ){
-				collection[i] = this.storage[i];
+                            var tmp_o = {};
+                            tmp_o[this.storage.key(i)] = this.get( this.storage[i] );
+                            collection[i] = tmp_o;
 			}
 			return collection;
 		},
@@ -468,9 +498,9 @@ var jstore = (function(){
 			this.storage.removeItem( key );
 			return this;
 		},
-		remove_item:function( key, ind, fn, context ) {
+		remove_item:function( key, ind, callback, context ) {
 			var temp_o = this.get( key );
-
+                        var deleted_val = temp_o[ key ];
 			if ( _is_array( temp_o ) ) {
 				temp_o.splice( ind, 1 );
 			} else if ( _is_object( temp_o ) ) {
@@ -481,13 +511,13 @@ var jstore = (function(){
 			//reset the new object to the db key
 			this.set( key, temp_o );
 
-                        if( callable( fn ) ){
+                        if( _is_callable( callback ) ){
                             context = context || this;
-                            fn.call(context);
+                            callback.call( context, deleted_val );
                         }
 			return this;
 		},
-		clear:function(){
+		clear:function() {
 			this.storage.clear();
 			if(typeof this.storage.length === "function" && this.storage.length === 0) {
 				return true;
@@ -495,7 +525,7 @@ var jstore = (function(){
 				return false;
 			}
 		},
-		size:function(){
+		size:function() {
 			return this.storage.length;
 		}
 	};
