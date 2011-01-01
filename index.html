@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>rmcvey/jsper @ GitHub</title>
+	
+	<style type="text/css">
+		body {
+  		margin-top: 1.0em;
+  		background-color: #eaaa74;
+		  font-family: "Helvetica,Arial,FreeSans";
+  		color: #000000;
+    }
+    #container {
+      margin: 0 auto;
+      width: 700px;
+    }
+		h1 { font-size: 3.8em; color: #15558b; margin-bottom: 3px; }
+		h1 .small { font-size: 0.4em; }
+		h1 a { text-decoration: none }
+		h2 { font-size: 1.5em; color: #15558b; }
+    h3 { text-align: center; color: #15558b; }
+    a { color: #15558b; }
+    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
+    .download { float: right; }
+		pre { background: #000; color: #fff; padding: 15px;}
+    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+    .footer { text-align:center; padding-top:30px; font-style: italic; }
+	</style>
+	
+</head>
+
+<body>
+  <a href="http://github.com/rmcvey/jsper"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+
+  <div id="container">
+
+    <div class="download">
+      <a href="http://github.com/rmcvey/jsper/zipball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+      <a href="http://github.com/rmcvey/jsper/tarball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+    </div>
+
+    <h1><a href="http://github.com/rmcvey/jsper">jsper</a>
+      <span class="small">by <a href="http://github.com/rmcvey">rmcvey</a></span></h1>
+
+    <div class="description">
+      Wrapper around HTML 5 localStorage
+    </div>
+
+    <p>Welcome to the jsper wiki!
+
+jsper is a native implementation of HTML5 storage (localStorage and sessionStorage) that degrades quite gracefully all the way back to IE6 by using cookies. This is not a milestone, others have done this. What I've done differently is:
+
+* created a better api to access localStorage using simple get, set methods 
+* provide automatic serialization/deserialization of storage items, i.e. what you put in is what you get back
+* provide iterators
+* all non-getter methods are chainable, and most methods are overloaded and accept callbacks
+* i allow you to manually switch storage engines (if supported by the browser) and retrieve info about what engine is currently in use 
+
+### Browser Support
+jsper has been unit tested in IE6,7,8/Firefox 2,3,4/Chrome/Safari
+
+### Getting started and Notes
+This is the entirety of the setup process:
+```html
+<script type="text/javascript" src="/path/to/jsper.js"></script>
+<!-- alternatively, you can use the query plugin version -->
+```
+Note: if you are using the jquery plugin version, replace jsper.*method* with $.jsper.*method* (or jQuery.jsper.*method* if you prefer)
+
+### Getting and Setting
+```js
+jsper.set('foo', {bar:'baz',boz:{bez:'biz'}});
+//jsper.get returns the type of object you gave it; in this case, an object
+var my_object = jsper.get('foo');
+
+jsper.set('arr', ['a', 'b', 'c', 'd']);
+// returns an array
+var my_array = jsper.get('arr');
+```
+
+### Iterating
+```js
+// set an array in storage
+jsper.set('an_array', ['This', 'is', 'pretty', 'cool']);
+
+var message = "";
+
+// perform iteration, data is the stored value and index is numerical index
+jsper.each('an_array', function(data, index){
+   message += " "+data;
+});
+
+console.log(message);//outputs: "This is pretty cool"
+```
+
+### Overloaded Methods
+```js
+var multiple_keys = {
+   first:['a', 'b', 'c'],
+   second:['d','e','f']
+};
+
+//set multiple keys at the same time
+jsper.set(multiple_keys);
+
+console.log(jsper.get('first'));//returns: array [a, b, c]
+
+var first_and_second = jsper.get(['first','second']);
+// or 
+jsper.each(['first'. 'second'], function(data, index){
+   console.log(" %s", data);//output: a b c d e f
+});
+```</p><h2>Install</h2>
+<p>include single javascript file</p>
+<h2>License</h2>
+<p>MIT</p>
+<h2>Authors</h2>
+<p> (mcvey.rob@gmail.com)<br/>rob (rob.mcvey@announcemedia.com)<br/><br/>      </p>
+<h2>Contact</h2>
+<p> (mcvey.rob@gmail.com)<br/>      </p>
+
+
+    <h2>Download</h2>
+    <p>
+      You can download this project in either
+      <a href="http://github.com/rmcvey/jsper/zipball/master">zip</a> or
+      <a href="http://github.com/rmcvey/jsper/tarball/master">tar</a> formats.
+    </p>
+    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+      by running:
+      <pre>$ git clone git://github.com/rmcvey/jsper</pre>
+    </p>
+
+    <div class="footer">
+      get the source code on GitHub : <a href="http://github.com/rmcvey/jsper">rmcvey/jsper</a>
+    </div>
+
+  </div>
+
+  
+</body>
+</html>
