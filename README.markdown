@@ -2,12 +2,12 @@
 This object wraps the HTML 5 localStorage engine to provide a simple, yet powerful and versatile interface to client-side persistent storage using get and set methods. It also provides a native fallback storage engine to cookies if localStorage has not been implemented in the end-user's browser.
 
 In addition to providing the simple string storage and retrieval built into localStorage, it extends this (with the help of JSON2.js from Douglas Crockford) by allowing:
-	* Automatic serialization/deserialization of objects and arrays
-	* Setup is automatic, it uses what the browser is capable of (though you can force it to use an engine)
-	* Checks for support with the jsper.supported() method
-	* Removal of an individual array element or object attribute
-	* Iterators
-	* Overloaded methods
+* Automatic serialization/deserialization of objects and arrays
+* Setup is automatic, it uses what the browser is capable of (though you can force it to use an engine)
+* Checks for support with the jsper.supported() method
+* Removal of an individual array element or object attribute
+* Iterators
+* Overloaded methods
 	
 localStorage has pretty wide support from modern browsers, but will fallback to cookies in older browsers.
 
