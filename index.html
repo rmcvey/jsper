@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-
+	<script type="text/javascript" src="http://github.com/rmcvey/jsper/raw/master/jsper.js"></script>
 	<title>rmcvey/jsper @ GitHub</title>
 
 	<style type="text/css">
@@ -22,7 +22,7 @@
 		h1 .small { font-size: 0.4em; }
 		h1 a { text-decoration: none }
 		h2 { font-size: 1.5em; color: #15558b; }
-    h3 { text-align: center; color: #15558b; }
+    h3 { text-align:left; color: #15558b; }
     a { color: #15558b; }
     .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
     .download { float: right; }
@@ -46,7 +46,7 @@
     </div>
 
     <h1><a href="http://github.com/rmcvey/jsper">jsper</a>
-      <span class="small">by <a href="http://github.com/rmcvey">rmcvey</a></span></h1>
+      <span class="small">by <a href="http://github.com/rmcvey">rob.mcvey</a></span></h1>
 
     <div class="description">
       Wrapper around HTML 5 localStorage
@@ -66,24 +66,30 @@ jsper has been unit tested in IE6,7,8/Firefox 2,3,4/Chrome/Safari
 <h3> Getting started and Notes</h3>
 This is the entirety of the setup process:
 <pre>
-<script type="text/javascript" src="/path/to/jsper.js"></script>
-<!-- alternatively, you can use the query plugin version -->
+&lt;script type="text/javascript" src="/path/to/jsper.js"&gt;&lt;/script&gt;
+&lt;!-- alternatively, you can use the query plugin version --&gt;
 </pre>
-Note: if you are using the jquery plugin version, replace jsper.<li>method* with $.jsper.*method* (or jQuery.jsper.*method* if you prefer)</li>
+<strong>Note: if you are using with jquery and want to access through jquery, replace jsper.<em>method</em> with $.jsper.<em>method</em> (or jQuery.jsper.<em>method</em> if you prefer)</strong>
 
+<h2>If you are wanting to experiment with jsper, open firebug or the console and follow along with the examples; jsper is included in this page. :) </h2>
 <h3> Getting and Setting</h3>
 <pre>
+
 jsper.set('foo', {bar:'baz',boz:{bez:'biz'}});
 //jsper.get returns the type of object you gave it; in this case, an object
 var my_object = jsper.get('foo');
+console.log(my_object);
 
 jsper.set('arr', ['a', 'b', 'c', 'd']);
 // returns an array
 var my_array = jsper.get('arr');
+console.log(my_array);
+
 </pre>
 
 <h3> Iterating</h3>
 <pre>
+
 // set an array in storage
 jsper.set('an_array', ['This', 'is', 'pretty', 'cool']);
 
@@ -94,7 +100,9 @@ jsper.each('an_array', function(data, index){
    message += " "+data;
 });
 
-console.log(message);//outputs: "This is pretty cool"
+//outputs: "This is pretty cool"
+console.log(message);
+
 </pre>
 
 <h3> Overloaded Methods</h3>
@@ -111,20 +119,41 @@ console.log(jsper.get('first'));//returns: array [a, b, c]
 
 var first_and_second = jsper.get(['first','second']);
 // or
-jsper.each(['first'. 'second'], function(data, index){
+jsper.each(['first', 'second'], function(data, index){
    console.log(" %s", data);//output: a b c d e f
 });
 </pre>
-</pre><h2>Install</h2>
+
+<h3>Engines</h3>
+<pre>
+
+// retrieve current storage engine
+console.log(jsper.storage_engine);
+
+// switch engines and set a value
+jsper.force_engine('sessionStorage');
+jsper.set('logged_in', true);
+jsper.set('username', 'john.smith');
+
+console.log('username: %s from storage: %s', jsper.get('username'), jsper.storage_engine);
+
+// or the more succinct
+var output = jsper.force_engine('cookie').set(
+	{logged_in:true, username:'john.smith'}
+).get(['logged_in', 'username']);
+
+console.log('username: %s from storage: %s', output[1], jsper.storage_engine);
+</pre>
+<h2>Install</h2>
 <p>
 <pre>
 	&lt;script type="text/javascript" src="/path/to/jsper.js"&gt;&lt;/script&gt;
 </pre>
 </p>
 <h2>License</h2>
-<p>MIT</p>
+<p>Licensed under <a href="license.txt">GNU Lesser Public License</a></p>
 <h2>Authors</h2>
-<p>rmcvey</p>
+<p>rob.mcvey <a href="http://www.bitconsultants.net/contact/">contact me</a></p>
 
 
     <h2>Download</h2>
@@ -144,6 +173,18 @@ jsper.each(['first'. 'second'], function(data, index){
 
   </div>
 
+<script type="text/javascript">
 
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1505708-8']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
 </body>
 </html>
