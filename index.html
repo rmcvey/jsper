@@ -10,18 +10,27 @@
 	<style type="text/css">
 		body {
   		margin-top: 1.0em;
-  		background-color: #ddd;
-		  font-family: "Helvetica,Arial,FreeSans";
+		background:url("http://dev.bitconsultants.net/aurora2.jpg") repeat fixed 0 0 transparent;
+		font-family: "Arial,FreeSans";
   		color: #000000;
     }
     #container {
-      margin: 0 auto;
-      width: 700px;
+      -moz-border-radius: 10px 10px 10px 10px;
+	  -webkit-border-radius:10px;
+		background-color: #FFFFFF;
+		border: 1px solid #000000;
+		margin: 0 auto;
+		opacity: 0.8;
+		padding: 20px;
+		width: 700px;
     }
 		h1 { font-size: 3.8em; color: #15558b; margin-bottom: 3px; }
 		h1 .small { font-size: 0.4em; }
 		h1 a { text-decoration: none }
 		h2 { font-size: 1.5em; color: #15558b; }
+		h1,h2,h3{font-family:Tahoma;font-weight:100;}
+		h2,h3{border-bottom:1px solid #15558b;}
+		p,li{font-family:arial;font-size:12px;}
     h3 { text-align:left; color: #15558b; }
     a { color: #15558b; }
     .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
@@ -29,6 +38,7 @@
 		pre { background: #000; color: #fff; padding: 15px;}
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     .footer { text-align:center; padding-top:30px; font-style: italic; }
+	.warn{color:#fc9e1a;border:1px solid #fc9e1a; background-color:#000;padding:4px;}
 	</style>
 
 </head>
@@ -49,7 +59,7 @@
       <span class="small">by <a href="http://github.com/rmcvey">rob.mcvey</a></span></h1>
 
     <div class="description">
-      Wrapper around HTML 5 localStorage
+      Wrapper around HTML 5 localStorage that degrades nicely all the way back to IE6
     </div>
 
     <p>jsper is a native implementation of HTML5 storage (localStorage and sessionStorage) that degrades quite gracefully all the way back to IE6 by using cookies. This is not a milestone, others have done this. What I've done differently is:
@@ -71,7 +81,7 @@ This is the entirety of the setup process:
 </pre>
 <strong>Note: if you are using with jquery and want to access through jquery, replace jsper.<em>method</em> with $.jsper.<em>method</em> (or jQuery.jsper.<em>method</em> if you prefer)</strong>
 
-<h2>If you are wanting to experiment with jsper, open firebug or the console and follow along with the examples; jsper is included in this page. :) </h2>
+<h2 class="warn">############## HOLA ################<br />If you are wanting to experiment with jsper, open firebug or the console and follow along with the examples; jsper is included in this page. :) </h2>
 <h3> Getting and Setting</h3>
 <pre>
 
