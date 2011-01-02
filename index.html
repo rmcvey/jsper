@@ -20,9 +20,10 @@
 		background-color: #FFFFFF;
 		border: 1px solid #000000;
 		margin: 0 auto;
-		opacity: 0.8;
+		opacity: 0.85;
 		padding: 20px;
 		width: 700px;
+		-moz-box-shadow: 6px 5px 5px black;
     }
 		h1 { font-size: 3.8em; color: #15558b; margin-bottom: 3px; }
 		h1 .small { font-size: 0.4em; }
@@ -39,6 +40,7 @@
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     .footer { text-align:center; padding-top:30px; font-style: italic; }
 	.warn{color:#fc9e1a;border:1px solid #fc9e1a; background-color:#000;padding:4px;}
+	.warn .head{color:#727fac !important;}
 	</style>
 
 </head>
@@ -77,11 +79,15 @@ jsper has been unit tested in IE6,7,8/Firefox 2,3,4/Chrome/Safari
 This is the entirety of the setup process:
 <pre>
 &lt;script type="text/javascript" src="/path/to/jsper.js"&gt;&lt;/script&gt;
-&lt;!-- alternatively, you can use the query plugin version --&gt;
 </pre>
 <strong>Note: if you are using with jquery and want to access through jquery, replace jsper.<em>method</em> with $.jsper.<em>method</em> (or jQuery.jsper.<em>method</em> if you prefer)</strong>
 
-<h2 class="warn">############## HOLA ################<br />If you are wanting to experiment with jsper, open firebug or the console and follow along with the examples; jsper is included in this page. :) </h2>
+<h2 class="warn">
+	<span class="head">################ HOLA ##################</span>
+	<br />If you are wanting to experiment with jsper, open firebug or the console and follow along with the examples; jsper is included in this page. :) 
+	<span class="head">#######################################</span>
+</h2>
+	
 <h3> Getting and Setting</h3>
 <pre>
 
@@ -156,6 +162,7 @@ console.log('username: %s from storage: %s', output[1], jsper.storage_engine);
 </pre>
 <h2>Install</h2>
 <p>
+Download the jsper script from the links below and include it in your page like so:
 <pre>
 	&lt;script type="text/javascript" src="/path/to/jsper.js"&gt;&lt;/script&gt;
 </pre>
@@ -163,7 +170,9 @@ console.log('username: %s from storage: %s', output[1], jsper.storage_engine);
 <h2>License</h2>
 <p>Licensed under <a href="license.txt">GNU Lesser Public License</a></p>
 <h2>Authors</h2>
-<p>rob.mcvey <a href="http://www.bitconsultants.net/contact/">contact me</a></p>
+<p>rob.mcvey <a href="http://www.bitconsultants.net/contact/">contact me</a><br />
+Cookie storage and JSON parsing from The Wojo Group <a href="https://github.com/thewojogroup">The Wojo Group@github</a> and Douglas Crockford's JSON2 class respectively
+</p>
 
 
     <h2>Download</h2>
