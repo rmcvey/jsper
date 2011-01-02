@@ -1,3 +1,5 @@
+<h1><a href="http://rmcvey.github.com/jsper/">View Full Documentation</a></h1>
+
 ## About
 This object wraps the HTML 5 localStorage engine to provide a simple, yet powerful and versatile interface to client-side persistent storage using get and set methods. It also provides a native fallback storage engine to cookies if localStorage has not been implemented in the end-user's browser.
 
