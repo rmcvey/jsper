@@ -1,4 +1,30 @@
-/**
+/**###########################################################################################################
+ *  # LICENSE INFO #
+        Copyright (c) 2010 Rob McVey
+        GNU Lesser Public License http://rmcvey.github.com/jsper/license.txt
+        Portions of this internal cookie class belong to The Wojo Group
+          Copyright (c) 2009 The Wojo Group
+
+          Permission is hereby granted, free of charge, to any person obtaining a copy
+          of this software and associated documentation files (the "Software"), to deal
+          in the Software without restriction, including without limitation the rights
+          to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+          copies of the Software, and to permit persons to whom the Software is
+          furnished to do so, subject to the following conditions:
+
+          The above copyright notice and this permission notice shall be included in
+          all copies or substantial portions of the Software.
+
+          THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+          IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+          FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+          AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+          LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+          OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+          THE SOFTWARE.
+
+          The JSON engine belongs to Douglas Crockford's JSON2.js, the conents of which are included in class
+############################################################################################################
 *	Global db object wraps localStorage
 *
 *	Check for support: returns true of false
@@ -111,7 +137,7 @@ var jsper = (function(){
 
                     case 'number':
                         return isFinite(value) ? String(value) : 'null';
-
+                    case 'function':
                     case 'boolean':
                     case 'null':
                         return String(value);
@@ -245,103 +271,117 @@ var jsper = (function(){
          *  Internal cookie storage engine
          */
 	var cookieStorage = (function(){
-		var Cookie = (function(){
-                        var _c_separator = "::", _prefix = "cookieStorage_";
-			return {
-                                index:0,
-                                length_cookie:"length_cookieStorage",
-                                load_all:function(){
+            var window = this;
+            var expiresAt = 30*24*60*60,
+                    maxCookieSize = 4000,
+                    prefix = "storageData_",
+                    nameValueDelim = "::",
+                    itemDelim = "++";
 
-                                },
-				set:function(name,value,session_only) {
-					var expires;
-                                        var date = new Date();
-					if (session_only === true) {
-						expires = "";
-					} else if(session_only === 'remove') {
-						date.setTime(date.getTime()+(-1*24*60*60*1000));
-						expires = "; expires="+date.toGMTString();
-					} else {
-						date.setDate( date.getYear()+8, date.getMonth(), date.getDate() );
-						expires = "; expires="+date.toGMTString();
-					}
-					document.cookie = name+"="+value+expires+"; path=/;";
-                                        if(value !== ""){
-                                            ++this.index;
-                                        } else {
-                                            var index = name.match(/cookieStorage_([0-9]*)/)[1];
-                                            --this.index;
-                                            this._reset_keys(index);
-                                        }
-                                        document.cookie = this.length_cookie+'='+this.index+expires+"; path=/;";
-				},
-                                _by_numeric_key:function(index){
+            createCookie = function(name,value,expire) {
+                    var date = new Date();
+                    date.setTime(date.getTime() + expire);
+                    var expires = "; expires=" + date.toGMTString();
+                    document.cookie = name+"="+value+expires+"; path=/";
+            };
+            readCookie = function(name) {
+                    var nameEQ = name + "=", ca = document.cookie.split(';');
+                    for(var i=0,iLen=ca.length;i<iLen;i++) {
+                            var c = ca[i];
+                            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+                            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
+                    }
+                    return null;
+            };
+            eraseCookie = function(name) {createCookie(name,"",-1);};
+            getAllCookieData = function(){
+                    var data="",x=0;
+                    while(readCookie(prefix+x) !== null)
+                            data+=readCookie(prefix+x++);
+                    return data == "" ? [] : data.split('++');
+            };
+            dataStringToCookies = function(data) {
+                    var cookiesUsed = Math.ceil(data.length/maxCookieSize),
+                            x=0;
+                    while(x<cookiesUsed || readCookie(prefix+x) !== null){
+                            if( x<cookiesUsed )
+                                    createCookie(prefix+x, data.substr(x*maxCookieSize, ((x+1)*maxCookieSize>data.length ? data.length-x*maxCookieSize : maxCookieSize )), expiresAt);
+                            else
+                                    eraseCookie(prefix+x);
+                            x++;
+                    }
+            };
 
-                                },
-                                _reset_keys:function(index){
-                                        var length = this.get( this.length_cookie );
-                                        for( i = index; i < length; i++ ) {
-                                            if( this.get(_prefix+i) === "" ) {
-                                                if(i != length-1 && this.get(_prefix+(i+1))){
-                                                    this.set(_prefix+i, this.get(_prefix+(i+1)));
-                                                    this.set(_prefix+(i+1), "", -1);
-                                                }
-                                            }
-                                        }
-                                },
-				destroy:function(name){
-					var date = new Date();
-					date.setTime(date.getTime()+(-1*24*60*60*1000));
-					expires = "; expires="+date.toGMTString();
-					document.cookie = name+"="+""+expires+"; path=/";
-				},
-			  	get:function(name) {
-					var nameEQ = name + "=";
-					var ca = document.cookie.split(';');
-					for(var i=0;i < ca.length;i++) {
-						var c = ca[i];
-						while (c.charAt(0)==' ') {
-							c = c.substring(1, c.length);
-						}
-						if (c.indexOf(nameEQ) == 0) {
-							return c.substring(nameEQ.length,c.length);
-						}
-					}
-					return null;
-				},
-				remove:function(name) {
-					this.set(name,"");
-				},
-				clear:function() {
-					var all = document.cookie.split('; ');
-					var len = all.length;
-					for( var i = 0 ; i < len; i++) {
-						destroy(
-							all[i].split('=')[0].replace(/[\s]*/g,'')
-						);
-					}
-				}
-			};
-		})();
-		return {
-			setItem:function( key, val, session_lifetime ) {
-				return Cookie.set( key, val, session_lifetime );
-			},
-			getItem:function( key ) {
-				return (Cookie.get( key ) !== "") ? Cookie.get( key ) : null;
-			},
-			removeItem:function( key ) {
-				return Cookie.remove( key );
-			},
-			clear:function() {
-				return Cookie.clear();
-			},
-                        key:function(index){
-                                return Cookie.get("cookieStorage_"+index) || null;
-                        },
-			length:document.cookie.split(';').length
-		};
-	})();
+            return {
+                    "length":0,
+                    "setItem":function( key , value ){
+                            var data=getAllCookieData(),x=0,xlen=data.length,exists=false;
+                            for(x=0;x<xlen;x++){
+                                    var item = data[x].split(nameValueDelim);
+                                    if( item[0] == key ){
+                                            item[1] = value;
+                                            exists=true;
+                                            data[x] = item.join(nameValueDelim);
+                                            x=xlen;
+                                    }
+                            }
+                            if( !exists ){
+                                    data.push(key + nameValueDelim + value.replace(/::/g,": :").replace(/\+\+/g, "+ +") );
+                                    this.keys.push(key);
+                                    this["length"]++;
+                            }
+
+                            dataStringToCookies( data.join(itemDelim) );
+                    },
+                    "getItem":function( key ){
+                            var data=getAllCookieData(),x=0,xlen=data.length,exists=false;
+                            for(x=0;x<xlen;x++){
+                                    var item = data[x].split(nameValueDelim);
+                                    if( item[0] == key && !!item[1])
+                                            return item[1];
+                            }
+                            return null;
+                    },
+                    "removeItem":function( key ){
+                            var data=getAllCookieData(),x=0,xlen=data.length,exists=false,tempData=[];
+                            for(x=0;x<xlen;x++){
+                                    var item = data[x].split(nameValueDelim);
+                                    if( item[0] != key )
+                                            tempData.push(data[x]);
+                                    else
+                                            exists=true;
+                            }
+                            if( !exists )
+                                    return;
+
+                            dataStringToCookies( tempData.join(itemDelim) );
+                            setKeysAndLength();
+                    },
+
+                    "clear":function(){
+                            var x=0;
+                            while(readCookie(prefix+x) !== null)
+                                    eraseCookie(prefix+x++);
+                            this.keys = [];
+                            this["length"] = 0;
+                    },
+
+                    "key":function( key ){
+                            return key<this["length"] ? this.keys[key] : null;
+                    },
+
+                    keys: [],
+                    setKeysAndLength:function(){
+                            cookieStorage.keys = getAllCookieData();
+                            var x=0;
+                            while( cookieStorage.keys[x] )
+                                    cookieStorage.keys[x] = cookieStorage.keys[x++].split("::")[0];
+
+                            cookieStorage["length"] = cookieStorage.keys.length;
+                    }
+                };
+        })();
+		
 
         /**
          *  Helper methods
@@ -388,9 +428,6 @@ var jsper = (function(){
 		storage:(supports.html5_storage()) ? localStorage : cookieStorage,
 		storage_engine:'localStorage',
 		support:false,
-		init:function(){
-			this.supported();
-		},
 		force_engine:function(eng){
 			switch(eng){
 				case "localStorage":
@@ -408,6 +445,7 @@ var jsper = (function(){
 				case 'cookie':
 					this.storage_engine = "cookie";
 					this.storage = cookieStorage;
+                                        this.storage.setKeysAndLength();
 					break;
 				default:
 					this.storage_engine = "cookie";
@@ -422,8 +460,7 @@ var jsper = (function(){
 			this.support = supports.html5_storage();
 			if(!this.support){
                                 if(supports.cookies){
-                                    this.storage_engine = "cookie";
-                                    this.storage = cookieStorage;
+                                    this.force_engine('coookie');
                                     this.support = true;
                                 }
 			}
@@ -465,6 +502,8 @@ var jsper = (function(){
                                     for(var i in items){
                                         items[i] = callback.call(that, items[i], i);
                                     }
+                                } else {
+                                    callback.call(that, items, null);
                                 }
                             }
                         }
@@ -511,7 +550,7 @@ var jsper = (function(){
 			var collection = [];
 			for( var i = 0; i < this.storage.length; i++ ){
                             var tmp_o = {};
-                            tmp_o[this.storage.key(i)] = this.get( this.storage[i] );
+                            tmp_o[this.storage.key(i)] = this.get( this.storage.key(i) );
                             collection[i] = tmp_o;
 			}
 			return collection;
@@ -550,8 +589,12 @@ var jsper = (function(){
 		},
 		size:function() {
 			return this.storage.length;
-		}
-	};
+		},
+                init:function(){
+                        this.supported();
+                        return this
+                }
+	}.init();
 })();
 if(typeof window.jQuery !== "undefined"){
     jQuery.jsper = jsper;
