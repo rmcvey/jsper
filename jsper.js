@@ -273,7 +273,7 @@ var jsper = (function(){
                                             --this.index;
                                             this._reset_keys(index);
                                         }
-                                        this.set(this.length_cookie, this.index);
+                                        document.cookie = this.length_cookie+'='+this.index+expires+"; path=/;";
 				},
                                 _by_numeric_key:function(index){
 
