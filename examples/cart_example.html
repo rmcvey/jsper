@@ -109,7 +109,7 @@
 			}
 			
 			window.onload = function(){
-				if(typeof jsper === "undefined" || typeof cart === "undefined"){
+				if(typeof jsper === "undefined" || typeof jsper_cart === "undefined"){
 					document.getElementById('message').innerHTML = '<h1 style="color:red;">Please fix the script paths!</h1>';
 				} else {
 					build_cart();
