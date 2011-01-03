@@ -1,0 +1,174 @@
+<html>
+	<head>
+		<title>Cart Example</title>
+		<style type="text/css">
+			body,html{
+				font-family:Arial;
+				font-size:12px;
+			}
+			#items_for_sale{
+				width:70%;
+				float:left;
+			}
+			#cart_container{
+				background-color: #EEEEEE;
+				border: 1px solid #CCCCCC;
+			    float: left;
+			    margin: 22px;
+			    padding: 12px;
+			    right: 30px;
+			    width: 20%;
+			}
+			#items_for_sale table{
+				width:100%;
+				border-collapse:collapse;
+			}
+			#items_for_sale table td, #items_for_sale table th{
+				padding:5px;
+			}
+			#items_for_sale thead th{
+				text-align:left;
+			}
+			#scart{
+				width:100%;
+			}
+			#scart td{
+				border-bottom:1px solid #bbb;
+			}
+			td#total{
+				border-bottom:none;
+			}
+			.remover{
+				cursor:pointer;
+				color:red;
+			}
+		</style>
+		<script type="text/javascript" src="../jsper.js"></script>
+		<script type="text/javascript" src="cart.js"></script>
+		<script type="text/javascript">
+			var items = [{
+			    id:"FOIJSFJjidfa94871",
+			    name:"Running Shoes",
+			    price:"49.99",
+			    qty:2
+			},{
+				id:"i#J#i34i434i2jfjabn",
+				name:'Heartrate Monitor',
+				price:'19.99',
+				qty:1
+			},{
+				id:"I!JPBIEJOWJW---EJRW#L",
+				name:"Sweatpants",
+				price:'13.45',
+				qty:3
+			}];
+			
+			function add_a_few_items(){
+				jsper_cart.add(items[0]);
+				jsper_cart.add(items[0]);
+				jsper_cart.add(items[1]);
+				jsper_cart.add(items[2]);
+				jsper_cart.add(items[1]);
+			}
+		
+			function remove_item(pid, context){
+				jsper_cart.remove_item({id:pid}, function(item){
+					context.parentNode.parentNode.innerHTML = '';
+					document.getElementById('total').innerHTML = '<strong>$'+jsper_cart.total()+'</strong>';
+				}, context);
+			}
+		
+			
+			function build_cart(clear){
+				var template = function( obj ) {
+					return '\
+						<tr> \
+							<td>[<span class="remover" onclick="remove_item(\''+obj.id+'\', this)">X</span>] '+obj.name+'</td> \
+							<td>$'+obj.price+'</td> \
+							<td>x '+obj.qty+'</td> \
+						</tr> \
+					';
+				};
+			
+				var total_template = '\
+					<tr> \
+						<td id="total" style="text-align:right" colspan="3"><strong>Total: $'+jsper_cart.total()+'</strong></td> \
+					</tr> \
+				';
+		
+				var cart_table = document.getElementById('scart');
+				
+				if(clear !== undefined){
+					cart_table.innerHTML = "";
+				}
+				
+				jsper_cart.each(function(product){
+					cart_table.innerHTML += template( product );
+				});
+				cart_table.innerHTML += total_template;
+			}
+			
+			window.onload = function(){
+				if(typeof jsper === "undefined" || typeof cart === "undefined"){
+					document.getElementById('message').innerHTML = '<h1 style="color:red;">Please fix the script paths!</h1>';
+				} else {
+					build_cart();
+				}
+			};
+		</script>
+	</head>
+	<body>
+		<div id="message"></div>
+		<h1>JSPER CART</h1>
+		<div id="items_for_sale">
+			<h3>Items for Sale</h3>
+			<table border="1">
+				<thead>
+					<tr>
+						<th>Item</th>
+						<th>Description</th>
+						<th>Price</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Running Shoes</td>
+						<td>They could possibly make you slightly faster</td>
+						<td>49.99</td>
+						<td>
+							Quantity <input type="text" name="qty" value="1" size="4" />
+							<input type="button" id='but' onclick="items[0].qty=this.previousSibling.previousSibling.value;jsper_cart.add(items[0], build_cart)" value="add to cart" />
+						</td>
+					</tr>
+					<tr>
+						<td>Heartrate Monitor</td>
+						<td>Show a mostly-accurate readout of your heartrate from 3 1/2 minutes ago</td>
+						<td>19.99</td>
+						<td>
+							Quantity <input type="text" name="qty" value="1" size="4" />
+							<input type="button" id='but' onclick="items[1].qty=this.previousSibling.previousSibling.value;jsper_cart.add(items[1], build_cart)" value="add to cart" />
+						</td>
+					</tr>
+					<tr>
+						<td>Sweatpants</td>
+						<td>The sexiest pants known to man</td>
+						<td>13.45</td>
+						<td>
+							Quantity <input type="text" name="qty" value="1" size="4" />
+							<input type="button" id='but' onclick="items[2].qty=this.previousSibling.previousSibling.value;jsper_cart.add(items[2], build_cart)" value="add to cart" />
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div id="cart_container">
+			<h3>Shopping Cart</h3>
+			<table id="scart">
+			
+			</table>
+			<input type="button" onclick="jsper_cart.empty();build_cart('empty')" value="empty cart" />
+			<input type="button" onclick="add_a_few_items();build_cart('empty');" value="fill cart" />
+		</div>
+	</body>
+</html>

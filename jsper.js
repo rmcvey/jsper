@@ -578,6 +578,9 @@ var jsper = (function(){
         error:function( msg ) {},
         remove:function( key ) {
             this.storage.removeItem( key );
+			if(this.get( key )){
+				this.set(key, null);
+			}
             return this;
         },
         remove_item:function( key, ind, callback, context ) {
