@@ -71,7 +71,7 @@
 				$( selector ).html("<strong>Cached:</strong>" +jsper.get( selector ));
 			} else {
 				$.ajax({
-					url:'/jsper/ajax.html',
+					url:'ajax.html',
 					success:function( response ) {
 						$( selector ).html( response );
 						jsper.set( selector, response, true );
