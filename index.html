@@ -63,8 +63,8 @@
     <div class="description">
       Wrapper around HTML 5 localStorage that degrades nicely all the way back to IE6
     </div>
-
-    <p>jsper is a native implementation of HTML5 storage (localStorage and sessionStorage) that degrades quite gracefully all the way back to IE6 by using cookies. This is not a milestone, others have done this. What I've done differently is:
+    <h2>About</h2>
+	<p>jsper is a native implementation of HTML5 storage (localStorage and sessionStorage) that degrades quite gracefully all the way back to IE6 by using cookies. This is not a milestone, others have done this. What I've done differently is:
 <ul>
 <li> created a better api to access localStorage using simple get, set methods</li>
 <li> provide automatic serialization/deserialization of storage items, i.e. what you put in is what you get back</li>
@@ -88,21 +88,57 @@ This is the entirety of the setup process:
 	<span class="head">#######################################</span>
 </h2>
 	
-<h3> Getting and Setting</h3>
+<h2> Getting and Setting</h2>
+
+<h3>Setters</h3>
 <pre>
 
 jsper.set('foo', {bar:'baz',boz:{bez:'biz'}});
-//jsper.get returns the type of object you gave it; in this case, an object
-var my_object = jsper.get('foo');
-console.log(my_object);
 
 jsper.set('arr', ['a', 'b', 'c', 'd']);
-// returns an array
-var my_array = jsper.get('arr');
-console.log(my_array);
 
+jsper.set('message', 'hello world!');
+
+var obj = {
+	line1:"This makes things",
+	line2:"a bit easier"
+};
+
+jsper.set('another_message', obj);
 </pre>
 
+<h3>Getters</h3>
+<pre>
+
+var an_obj = jsper.get('foo');
+
+// willl log an object
+console.log(an_obj);
+
+var obj_stored = jsper.raw_value('foo');
+
+// log string representation of object
+console.log(obj_stored);
+
+// everything in the current storage engine
+var all = jsper.all();
+
+console.log(all);
+
+// retrieve two keys
+var two_keys = jsper.get(['key1', 'key2']);
+
+var link = "<a href='http://www.badsite.com'>Bad link</a>";
+jsper.set('link', link);
+
+// pass a callback to the get method
+var stripped = jsper.get('link', function(data){
+    return data.replace(/<.*?>/g, '');
+});
+
+console.log(stripped);
+
+</pre>
 <h3> Iterating</h3>
 <pre>
 
@@ -159,6 +195,32 @@ var output = jsper.force_engine('cookie').set(
 ).get(['logged_in', 'username']);
 
 console.log('username: %s from storage: %s', output[1], jsper.storage_engine);
+</pre>
+
+<h3>Removing Items</h3>
+<pre>
+
+jsper.set('my_array', ['a','b','c','e','d']);
+jsper.set('my_object', {a:'foo', b:{c:'bar', d:'baz'}});
+
+//remove the third element from the array
+jsper.remove_item('my_array', 3);
+
+//remove the b key from my_object
+jsper.remove_item('my_object', 'b');
+
+console.log(jsper.get('my_array'));//a b c d
+
+// view all items stored in current engine
+console.log(jsper.all());
+
+// remove the entire key
+jsper.remove('my_array');
+
+//remove all items stored in current engine
+jsper.clear();
+
+console.log(jsper.all());
 </pre>
 <h2>Install</h2>
 <p>
