@@ -468,7 +468,11 @@ var jsper = (function(){
             this.supported();
             return this;
         },
-        supported:function() {
+        supported:function( engine ) {
+			if( engine !== undefined ) {
+				this.force_engine( engine );
+				return this.storage_engine === engine;
+			}
             this.support = supports.html5_storage();
             if(!this.support){
                 if(supports.cookies){
