@@ -113,7 +113,7 @@ jsper.set( obj );
 
 var an_obj = jsper.get('foo');
 
-// willl log an object
+// will log an object
 console.log(an_obj);
 
 var obj_stored = jsper.raw_value('foo');
@@ -129,7 +129,7 @@ console.log(all);
 // retrieve two keys
 var two_keys = jsper.get(['key1', 'key2']);
 
-var link = "<a href='http://www.badsite.com'>Bad link</a>";
+var link = "&lt;a href='http://www.badsite.com'&gt;Bad link&lt;/a&gt;";
 jsper.set('link', link);
 
 // pass a callback to the get method
