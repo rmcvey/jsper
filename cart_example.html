@@ -45,6 +45,7 @@
 		</style>
 		<script type="text/javascript" src="http://github.com/rmcvey/jsper/raw/master/jsper.js"></script>
 		<script type="text/javascript" src="cart.js"></script>
+		<script type="text/javascript" src="http://getfirebug.com/firebug-lite.js#startOpened=true"></script>
 		<script type="text/javascript">
 			var items = [{
 			    id:"FOIJSFJjidfa94871",
@@ -81,31 +82,65 @@
 			
 			function build_cart(clear){
 				var template = function( obj ) {
-					return '\
-						<tr> \
-							<td>[<span class="remover" onclick="remove_item(\''+obj.id+'\', this)">X</span>] '+obj.name+'</td> \
-							<td>$'+obj.price+'</td> \
-							<td>x '+obj.qty+'</td> \
-						</tr> \
-					';
+					var tr = document.createElement('tr');
+					var td1 = document.createElement('td');
+					var td2 = document.createElement('td');
+					var td3 = document.createElement('td');
+					var spn = document.createElement('span');
+					var isp = document.createElement('span');
+					
+					isp.innerHTML = obj.name;
+					spn.setAttribute('class', 'remover');
+					spn.setAttribute('onclick', 'remove_item("'+obj.id+'", this)');
+					spn.innerHTML = "[X]";
+					td2.innerHTML = "$"+obj.price;
+					td3.innerHTML = "x "+obj.qty;
+					td1.appendChild(spn);
+					td1.appendChild(isp);
+					
+					tr.appendChild(td1);
+					tr.appendChild(td2);
+					tr.appendChild(td3);
+					return tr;
 				};
 			
-				var total_template = '\
-					<tr> \
-						<td id="total" style="text-align:right" colspan="3"><strong>Total: $'+jsper_cart.total()+'</strong></td> \
-					</tr> \
-				';
+				var total_template = document.createElement('tr');
+				var total_child = document.createElement('td');
+				total_child.setAttribute('id', 'total');
+				total_child.style.cssText = "text-align:right";
+				total_child.setAttribute('colspan', 3);
+				total_child.innerHTML = '<strong>Total: $'+jsper_cart.total()+'</strong>';
+				total_template.appendChild(total_child);
 		
 				var cart_table = document.getElementById('scart');
 				
 				if(clear !== undefined){
-					cart_table.innerHTML = "";
+					if ( cart_table.hasChildNodes() )
+					{
+					    while ( cart_table.childNodes.length >= 1 )
+					    {
+					        cart_table.removeChild( cart_table.firstChild );       
+					    } 
+					}
+					var tb = document.createElement('tbody');
+					tb.setAttribute('id', 'cart_body');
+					cart_table.appendChild(tb);
 				}
 				
+				var elems = [];
+				var html = cart_table.innerHTML;
+				
 				jsper_cart.each(function(product){
-					cart_table.innerHTML += template( product );
+					elems[elems.length] = template( product );
 				});
-				cart_table.innerHTML += total_template;
+
+				var tbody = document.getElementById('cart_body');
+				for(var i = 0; i < elems.length; i++){
+					tbody.appendChild(elems[i]);
+				}
+
+				tbody.appendChild(total_template);
+				cart_table.appendChild(tbody);
 			}
 			
 			window.onload = function(){
@@ -165,24 +200,10 @@
 		<div id="cart_container">
 			<h3>Shopping Cart</h3>
 			<table id="scart">
-			
+				<tbody id="cart_body"></tbody>
 			</table>
 			<input type="button" onclick="jsper_cart.empty();build_cart('empty')" value="empty cart" />
 			<input type="button" onclick="add_a_few_items();build_cart('empty');" value="fill cart" />
 		</div>
-		<script type="text/javascript">
-
-		  var _gaq = _gaq || [];
-		  _gaq.push(['_setAccount', 'UA-1505708-8']);
-		  _gaq.push(['_trackPageview']);
-
-		  (function() {
-		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-		  })();
-
-		</script>
-		
 	</body>
 </html>

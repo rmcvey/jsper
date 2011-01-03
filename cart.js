@@ -75,7 +75,7 @@ var jsper_cart = (function(){
 				}
 				
 				jsper.set( key, Cart );
-				
+
 				if( _is_callable( cb ) ) {
 					cb.call(that, item);
 				}
