@@ -63,7 +63,18 @@
     <div class="description">
       Wrapper around HTML 5 localStorage that degrades nicely all the way back to IE6
     </div>
-    <h2>About</h2>
+    <div id="google_translate_element"><h3>Translate this page</h3>
+	</div><script>
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    gaTrack: true,
+    gaId: 'UA-1505708-8',
+    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+  }, 'google_translate_element');
+}
+</script><script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+	<h2>About</h2>
 	<p>jsper is a native implementation of HTML5 storage (localStorage and sessionStorage) that degrades quite gracefully all the way back to IE6 by using cookies. This is not a milestone, others have done this. What I've done differently is:
 <ul>
 <li> created a better api to access localStorage using simple get, set methods</li>
@@ -77,7 +88,7 @@ jsper has been unit tested in IE6,7,8/Firefox 2,3,4/Chrome/Safari
 
 <h3> Getting started and Notes</h3>
 This is the entirety of the setup process:
-<pre>
+<pre class="notranslate">
 &lt;script type="text/javascript" src="/path/to/jsper.js"&gt;&lt;/script&gt;
 </pre>
 <strong>Note: if you are using with jquery and want to access through jquery, replace jsper.<em>method</em> with $.jsper.<em>method</em> (or jQuery.jsper.<em>method</em> if you prefer)</strong>
@@ -91,7 +102,7 @@ This is the entirety of the setup process:
 <h2> Getting and Setting</h2>
 
 <h3>Setters</h3>
-<pre>
+<pre class="notranslate">
 
 jsper.set('foo', {bar:'baz',boz:{bez:'biz'}});
 
@@ -109,7 +120,7 @@ jsper.set( obj );
 </pre>
 
 <h3>Getters</h3>
-<pre>
+<pre class="notranslate">
 
 var an_obj = jsper.get('foo');
 
@@ -141,25 +152,24 @@ console.log(stripped);
 
 </pre>
 <h3> Iterating</h3>
-<pre>
+<pre class="notranslate">
 
-// set an array in storage
-jsper.set('an_array', ['This', 'is', 'pretty', 'cool']);
+var scores = [0, 5, 10, 15, 20];
 
-var message = "";
+jsper.set('scores', scores);
 
-// perform iteration, data is the stored value and index is numerical index
-jsper.each('an_array', function(data, index){
-   message += " "+data;
+var total = 0;
+
+jsper.each('scores', function(score){
+    total += score;
 });
 
-//outputs: "This is pretty cool"
-console.log(message);
+console.log(total);
 
 </pre>
 
 <h3> Overloaded Methods</h3>
-<pre>
+<pre class="notranslate">
 var multiple_keys = {
    first:['a', 'b', 'c'],
    second:['d','e','f']
@@ -178,7 +188,7 @@ jsper.each(['first', 'second'], function(data, index){
 </pre>
 
 <h3>Engines</h3>
-<pre>
+<pre class="notranslate">
 
 // retrieve current storage engine
 console.log(jsper.storage_engine);
@@ -199,7 +209,7 @@ console.log('username: %s from storage: %s', output[1], jsper.storage_engine);
 </pre>
 
 <h3>Removing Items</h3>
-<pre>
+<pre class="notranslate">
 
 jsper.set('my_array', ['a','b','c','e','d']);
 jsper.set('my_object', {a:'foo', b:{c:'bar', d:'baz'}});
@@ -226,7 +236,7 @@ console.log(jsper.all());
 <h2>Install</h2>
 <p>
 Download the jsper script from the links below and include it in your page like so:
-<pre>
+<pre class="notranslate">
 	&lt;script type="text/javascript" src="/path/to/jsper.js"&gt;&lt;/script&gt;
 </pre>
 </p>
@@ -249,7 +259,7 @@ Portions of the cookie storage engine and the entirety of JSON parsing are respe
     </p>
     <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
       by running:
-      <pre class="prettyprint">$ git clone git://github.com/rmcvey/jsper</pre>
+      <pre class="notranslate prettyprint">$ git clone git://github.com/rmcvey/jsper</pre>
     </p>
 
     <div class="footer">
