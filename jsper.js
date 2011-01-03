@@ -1,8 +1,8 @@
 /**###########################################################################################################
- *  # LICENSE INFO #
+   LICENSE INFO
         Copyright (c) 2010 Rob McVey
         GNU Lesser Public License http://rmcvey.github.com/jsper/license.txt
-        Portions of this internal cookie class belong to The Wojo Group
+        Portions of this internal cookie class belong to The Wojo Group under MIT License
           Copyright (c) 2009 The Wojo Group
 
           Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,8 +24,9 @@
           THE SOFTWARE.
 
           The JSON engine belongs to Douglas Crockford's JSON2.js, the conents of which are included in class
-############################################################################################################
+
 *	Global db object wraps localStorage
+*	full documentation available at http://rmcvey.github.com/jsper
 *
 *	Check for support: returns true of false
 *		jsper.supported()
@@ -365,11 +366,9 @@ var jsper = (function(){
                             this.keys = [];
                             this["length"] = 0;
                     },
-
                     "key":function( key ){
                             return key<this["length"] ? this.keys[key] : null;
                     },
-
                     keys: [],
                     setKeysAndLength:function(){
                             cookieStorage.keys = getAllCookieData();
@@ -378,6 +377,12 @@ var jsper = (function(){
                                     cookieStorage.keys[x] = cookieStorage.keys[x++].split("::")[0];
 
                             cookieStorage["length"] = cookieStorage.keys.length;
+                    },
+                    onstorage:function(e){
+                        if(!e){
+                            e = window.event;
+                        }
+
                     }
                 };
         })();
@@ -430,12 +435,14 @@ var jsper = (function(){
 		support:false,
 		force_engine:function(eng){
 			switch(eng){
+                                case "local":
 				case "localStorage":
                                     if(supports.html5_storage()){
 					this.storage_engine = "localStorage";
 					this.storage = localStorage;
 					break;
                                     }
+                                case "session":
 				case "sessionStorage":
                                     if(supports.html5_sessionStorage()){
 					this.storage_engine = "sessionStorage";
@@ -443,14 +450,13 @@ var jsper = (function(){
 					break;
                                     }
 				case 'cookie':
-					this.storage_engine = "cookie";
-					this.storage = cookieStorage;
-                                        this.storage.setKeysAndLength();
-					break;
-				default:
-					this.storage_engine = "cookie";
-					this.storage = cookieStorage;
-					break;
+                                case 'cookieStorage':
+                                case 'cookies':
+                                default:
+                                    this.storage_engine = "cookie";
+                                    this.storage = cookieStorage;
+                                    this.storage.setKeysAndLength();
+                                    break;
 			}
 			// call this to fallback if new engine is not supported
 			this.supported();
@@ -460,8 +466,10 @@ var jsper = (function(){
 			this.support = supports.html5_storage();
 			if(!this.support){
                                 if(supports.cookies){
-                                    this.force_engine('coookie');
+                                    this.force_engine('cookie');
                                     this.support = true;
+                                } else {
+                                    return false;
                                 }
 			}
 			return this.support;
@@ -495,8 +503,8 @@ var jsper = (function(){
                             var items = this.get( key );
                             if(_is_callable( callback ) && items !== null) {
                                 if(_is_array(items)){
-                                    for(var i = 0; i < items.length; i++){
-                                        items[i] = callback.call(that, items[i], i);
+                                    for(var x = 0; x < items.length; x++){
+                                        items[x] = callback.call(that, items[x], x);
                                     }
                                 } else if (_is_object(items) && items !== null) {
                                     for(var i in items){
@@ -505,6 +513,8 @@ var jsper = (function(){
                                 } else {
                                     callback.call(that, items, null);
                                 }
+                            } else {
+                                return items;
                             }
                         }
                         return this;
@@ -553,7 +563,7 @@ var jsper = (function(){
                             tmp_o[this.storage.key(i)] = this.get( this.storage.key(i) );
                             collection[i] = tmp_o;
 			}
-			return collection;
+			return (collection.length > 0) ? collection : null;
 		},
 		error:function( msg ) {},
 		remove:function( key ) {
