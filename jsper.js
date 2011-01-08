@@ -1,6 +1,8 @@
 /**###########################################################################################################
    
-   Version: 1.1.2
+   Version: 1.1.3
+
+   * Fixed cookieStorage internal call to setKeysAndLength
 
    LICENSE INFO
         Copyright (c) 2010 Rob McVey
@@ -376,7 +378,7 @@ var jsper = (function(){
                     return;
 
                 dataStringToCookies( tempData.join(itemDelim) );
-                setKeysAndLength();
+                this.setKeysAndLength();
             },
 
             "clear":function(){
