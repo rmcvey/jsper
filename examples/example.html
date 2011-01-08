@@ -8,9 +8,15 @@
 		*  NOTE: jsper object is initialized when the script is included
 		*/
 		$(document).ready(function(){
-			if(console){
+			if(typeof window['console'] === "object" && console !== null){
 				var msg = $('#message').html("See how cool all of that stuff below is?");
-			}
+			}else{
+                            window['console'] = {
+                                log:function(o){
+                                    alert(o);
+                                }
+                            };
+                        }
 			
 			if(jsper.supported())
 			{
@@ -24,7 +30,7 @@
 				console.log(array);
 				console.log(object);
 				console.log(str);
-		
+	
 				/**
 				*	jsper.set() method
 				*/
