@@ -44,7 +44,10 @@
 			}
 		</style>
 		<script type="text/javascript" src="http://github.com/rmcvey/jsper/raw/master/jsper.js"></script>
-		<script type="text/javascript" src="cart.js"></script>
+		
+		<script type="text/javascript" src="http://getfirebug.com/firebug-lite.js"></script>
+
+
 		<script type="text/javascript">
 			var items = [{
 			    id:"FOIJSFJjidfa94871",
@@ -70,27 +73,45 @@
 				jsper_cart.add(items[2]);
 				jsper_cart.add(items[1]);
 			}
+			
+			function remNodes(elem){
+					if ( elem.hasChildNodes() )
+					{
+					    while ( elem.childNodes.length >= 1 )
+					    {
+					        elem.removeChild( elem.firstChild );       
+					    } 
+					}
+			}
 		
 			function remove_item(pid, context){
 				jsper_cart.remove_item({id:pid}, function(item){
-					context.parentNode.parentNode.innerHTML = '';
-					document.getElementById('total').innerHTML = '<strong>$'+jsper_cart.total()+'</strong>';
+					remNodes(context.parentNode.parentNode);
+					document.getElementById('total').innerHTML = '<strong>Total: $'+jsper_cart.total()+'</strong>';
 				}, context);
 			}
 		
+			function dce(tag){
+				return document.createElement(tag);
+			}
 			
 			function build_cart(clear){
 				var template = function( obj ) {
-					var tr = document.createElement('tr');
-					var td1 = document.createElement('td');
-					var td2 = document.createElement('td');
-					var td3 = document.createElement('td');
-					var spn = document.createElement('span');
-					var isp = document.createElement('span');
+					var tr = dce('tr');
+					var td1 = dce('td');
+					var td2 = dce('td');
+					var td3 = dce('td');
+					var spn = dce('span');
+					var isp = dce('span');
 					
 					isp.innerHTML = obj.name;
 					spn.setAttribute('class', 'remover');
 					spn.setAttribute('onclick', 'remove_item("'+obj.id+'", this)');
+					if(window.event){
+						spn.attachEvent('onclick', function(){
+							remove_item(obj.id, spn);
+						});
+					}
 					spn.innerHTML = "[X]";
 					td2.innerHTML = "$"+obj.price;
 					td3.innerHTML = "x "+obj.qty;
@@ -103,8 +124,8 @@
 					return tr;
 				};
 			
-				var total_template = document.createElement('tr');
-				var total_child = document.createElement('td');
+				var total_template = dce('tr');
+				var total_child = dce('td');
 				total_child.setAttribute('id', 'total');
 				total_child.style.cssText = "text-align:right";
 				total_child.setAttribute('colspan', 3);
@@ -121,7 +142,7 @@
 					        cart_table.removeChild( cart_table.firstChild );       
 					    } 
 					}
-					var tb = document.createElement('tbody');
+					var tb = dce('tbody');
 					tb.setAttribute('id', 'cart_body');
 					cart_table.appendChild(tb);
 				}
@@ -203,6 +224,7 @@
 			</table>
 			<input type="button" onclick="jsper_cart.empty();build_cart('empty')" value="empty cart" />
 			<input type="button" onclick="add_a_few_items();build_cart('empty');" value="fill cart" />
+			<script type="text/javascript" src="cart.js"></script>
 		</div>
 	</body>
 </html>
