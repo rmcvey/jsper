@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <script type="text/javascript" src="http://github.com/rmcvey/jsper/raw/master/jsper.js"></script>
+        <title>rmcvey/jsper @ GitHub</title>
+
+        <style type="text/css">
+            body {
+                margin-top: 1.0em;
+                background:url("http://dev.bitconsultants.net/aurora2.jpg") repeat fixed 0 0 transparent;
+                font-family: "Arial,FreeSans";
+                color: #000000;
+            }
+            #container {
+                -moz-border-radius: 10px 10px 10px 10px;
+                -webkit-border-radius:10px;
+                background-color: #FFFFFF;
+                border: 1px solid #000000;
+                margin: 0 auto;
+                opacity: 0.85;
+                padding: 20px;
+                width: 700px;
+                -moz-box-shadow: 6px 5px 5px black;
+            }
+            h1 { font-size: 3.8em; color: #15558b; margin-bottom: 3px; }
+            h1 .small { font-size: 0.4em; }
+            h1 a { text-decoration: none }
+            h2 { font-size: 1.5em; color: #15558b; }
+            h1,h2,h3{font-family:Tahoma;font-weight:100;}
+            h2{border-bottom:1px solid #15558b;}
+            p,li{font-family:arial;font-size:12px;}
+            h3 { text-align:left; color: #000; }
+            a { color: #15558b; }
+            .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
+            .download { float: right; }
+            pre { background: #000; color: #fff; padding: 15px;}
+            hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+            .footer { text-align:center; padding-top:30px; font-style: italic; }
+            .warn{color:#fc9e1a;border:1px solid #fc9e1a; background-color:#000;padding:4px;}
+            .warn .head{color:#727fac !important;}
+        </style>
+
+    </head>
+
+    <body>
+        <a href="http://github.com/rmcvey/jsper"><img style="position: absolute; top: -16px; right: -8px; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+
+        <div id="container">
+
+            <div class="download">
+                <a href="http://github.com/rmcvey/jsper/zipball/master">
+                    <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+                <a href="http://github.com/rmcvey/jsper/tarball/master">
+
+                    <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+            </div>
+
+            <h1><a href="http://github.com/rmcvey/jsper">jsper</a>
+                <span class="small">by <a href="http://github.com/rmcvey">rob.mcvey</a></span></h1>
+
+            <div class="description">
+                jsper documentation
+            </div>
+
+            <div id="google_translate_element"><h3>Translate this page</h3>
+            </div><script>
+                function googleTranslateElementInit() {
+                    new google.translate.TranslateElement({
+                        pageLanguage: 'en',
+                        gaTrack: true,
+                        gaId: 'UA-1505708-8',
+                        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+                    }, 'google_translate_element');
+                }
+            </script><script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+            <h2>Attributes</h2>
+
+            <h3>storage_engine [string]</h3>
+            <p>String representation of current storage engine</p>
+
+            <h3>support [bool]</h3>
+            <p>Returns if the browser supports jsper</p>
+
+            <h2>Methods</h2>
+            <h3><strong>NOTE: All non-getters return <em>this</em> and are chainable</strong></h3>
+            <h3>engine( optional <em>storageEngine</em> )</h3>
+            <p>Sets or retrieves current storage engine depending on whether or not there is a storageEngine argument</p>
+            <pre>
+jsper.engine();//localStorage
+jsper.engine('session');//sessionStorage
+            </pre>
+            <h3>set( key [string], value [string], <strong>optional</strong> <em>session_lifetime [bool]</em> )</h3>
+            <p>Inserts value into storage block labeled with key</p>
+            <pre class="notranslate">
+
+jsper.set('foo', {bar:'baz',boz:{bez:'biz'}});
+
+jsper.set('arr', ['a', 'b', 'c', 'd']);
+
+jsper.set('message', 'hello world!');
+
+//setting multiple items at the same time
+var obj = {
+	line1:"This makes things",
+	line2:"a bit easier"
+};
+
+jsper.set( obj );
+
+jsper.set( 'temporary', 'gone when session ends', true);
+
+            </pre>
+            <h3>get( key [array|string], <strong>optional</strong> <em>callback [function]</em>, <strong>optional</strong> <em>context [object]</em>)</h3>
+            <p>Get an item by key, note that if the key is not found in the current engine, jsper will check all available storage engines</p>
+            <pre class="notranslate">
+
+// pass a string
+var an_obj = jsper.get('foo');
+
+// pass an array
+var two_keys = jsper.get(['key1', 'key2']);
+
+var link = "&lt;a href='http://www.badsite.com'&gt;Bad link&lt;/a&gt;";
+jsper.set('link', link);
+
+// pass a callback to the get method
+var stripped = jsper.get('link', function(data){
+    return data.replace(/<.*?>/g, '');
+});
+
+// pass a callback and a context (context is an object of any kind, typically a DOM object though)
+jpser.get('link', function(data){
+    this.html( data );
+}, $('#link_container'));
+
+            </pre>
+            <h3>raw_value( key [string] )</h3>
+            <p>Returns the string value stored in key</p>
+            <pre class="notranslate">
+
+jsper.raw_value('object');//{a:'foo', b:{value:'bar'}}
+
+            </pre>
+            <h3>all()</h3>
+            <p>Retrieves all objects stored in the current storage engine</p>
+            <pre class="notranslate">
+
+var all = jsper.all();
+
+            </pre>
+            <h3>clear()</h3>
+            <p>Removes all items in current storage engine</p>
+            <pre class="notranslate">
+
+//remove all items stored in current engine
+jsper.clear();
+
+            </pre>
+            <h3>remove( key [string] )</h3>
+            <p>Remove a key from the current storage engine</p>
+            <pre class="notranslate">
+
+jsper.remove('user');
+
+            </pre>
+            <h3>remove_item( key [string], index [string|integer], <strong>optional</strong> <em>callback [function]</em>, <strong>optional</strong> <em>context [object]</em> )</h3>
+            <p>Removes an individual array element or object attribute from key, optionally performs a callback</p>
+            <pre class="notranslate">
+
+//remove the third element from the array
+jsper.remove_item('my_array', 3);
+
+//remove the b key from my_object
+jsper.remove_item('my_object', 'b');
+
+// using callback and context
+jsper.remove_item('rows', 4, function(data){
+    this.fadeOut();
+}, $('#table').eq(4));
+
+            </pre>
+
+            <h3>each( key [array|string],  )</h3>
+            <p></p>
+            <pre class="notranslate">
+
+var total = 0;
+jsper.each('scores', function(score, index){
+    total += score;
+});
+
+// each with array argument
+jsper.each(['first_round', 'second_round'], function(score, index){
+    total += score
+});
+
+            </pre>
+
+            <h2>Download</h2>
+                <p>
+                    You can download this project in either
+                    <a href="http://github.com/rmcvey/jsper/zipball/master">zip</a> or
+                    <a href="http://github.com/rmcvey/jsper/tarball/master">tar</a> formats.
+                </p>
+
+                <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+                    by running:
+                    <pre class="notranslate prettyprint">$ git clone git://github.com/rmcvey/jsper</pre>
+                </p>
+
+                <div class="footer">
+                    get the source code on GitHub : <a href="http://github.com/rmcvey/jsper">rmcvey/jsper</a>
+                </div>
+
+            </div>
+
+        <script type="text/javascript">
+
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-1505708-8']);
+            _gaq.push(['_trackPageview']);
+
+            (function() {
+                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+            })();
+
+        </script>
+    </body>
+</html>
