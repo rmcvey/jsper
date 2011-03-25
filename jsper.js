@@ -63,6 +63,7 @@
 *	Remove entire contents of storage: no return value
 *		jsper.clear()
 */
+(function() {
 var jsper = (function(){
     if(typeof JSON === "undefined"){
         var JSON = {};
@@ -683,4 +684,7 @@ var jsper = (function(){
 })();
 if(typeof window.jQuery !== "undefined"){
     jQuery.jsper = jsper;
+} else {
+   window.jsper = jsper;
 }
+})()
