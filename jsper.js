@@ -276,6 +276,96 @@
 			}());
 		}
 
+		var userStorage = (function(){
+			var _div = document.createElement( "div" ),
+				attrKey = "_jsper_";
+			_div.style.display = "none";
+			document.getElementsByTagName( "head" )[ 0 ].appendChild( _div );
+			if ( typeof _div.addBehavior !== "undefined" ) {
+				_div.addBehavior( "#default#userdata" );
+				_div.load( attrKey );
+				_fix_key = function(key){
+					return key.replace( /[^-._0-9A-Za-z\xb7\xc0-\xd6\xd8-\xf6\xf8-\u037d\u37f-\u1fff\u200c-\u200d\u203f\u2040\u2070-\u218f]/g, "-" );
+				}
+				return {
+					length:0,
+					setItem:function( key , value ){
+						//remove invalid key values
+						key = key.replace(/[\#\s\*\?\%\@\(\)\-\{\}]/g, '_');
+						if(key === undefined || value === undefined){
+							return null;
+						}
+						key = _fix_key( key );
+						try{
+							var attr = _div.getAttribute( key );
+							if ( value === null ) {
+								_div.removeAttribute( key );
+							} else {
+								_div.setAttribute( key, value );
+							}	
+							_div.save( attrKey );
+						}catch(e){
+							alert("FUCKED: "+e);
+						}
+					},
+					getItem:function( key ){
+						//remove invalid key values
+						key = key.replace(/[\#\s\*\?\%\@\(\)\-\{\}]/g, '_');
+						if(key === undefined){
+							return null;
+						}
+						key = _fix_key(key);
+						var attr = _div.getAttribute( key );
+						return attr;
+					},
+					removeItem:function( key ){
+						if(key === undefined){
+							return null;
+						}
+						key = _fix_key( key );
+						this.setItem( key, null );
+					},
+					clear:function(){
+						while ( attr = _div.XMLDocument.documentElement.attributes[ i++ ] ) {
+							_div.removeItem( attr );
+						}
+						_div.save();
+					},
+					key:function( key ){
+						
+					},
+					keys: [],
+					onstorage:function(fn, item){
+						if(_is_callable(fn)){
+							return fn(item);
+						}
+						return {};
+					},
+					setKeysAndLength:function(){
+						var i = 0, x = 0;
+						while ( attr = _div.XMLDocument.documentElement.attributes[ i++ ] ) {
+							if(attr !== null){
+								try{
+									this.keys[i] = this.getItem( attr );
+								}catch(e){
+									//unable to set item for some reason
+								}
+							}								
+						}
+						this.length = this.keys.length;
+						
+						return null;
+					},
+					init:function(){
+						this.setKeysAndLength();
+						return this;
+					}
+				}.init();
+			}else{
+				return false;
+			}
+		})();
+
 		/**
 		 *  Internal cookie storage engine
 		 */
@@ -323,7 +413,12 @@
 				}else{
 					return [];
 				}
-				return data == "" ? [] : data.split('++');
+				// When reading a cookie, webkit double-quote it.
+				if (data.match(/^"/)) {
+					data = data.replace(/^"/,'').replace(/"$/,'').replace(/\//g,'');
+				}
+				data = (data == "" ? [] : data.split('++') );
+				return data;
 			};
 			var data_string_to_cookies = function(data) {
 				var cookies_used = Math.ceil( data.length / max_cookie_size );
@@ -468,6 +563,12 @@
 					return false;
 				}
 			},
+			userData:function(){
+				if(userStorage !== false){
+					return true;
+				}
+				return false;
+			},
 			cookies:function(){
 				try{
 					return navigator.cookieEnabled;
@@ -479,8 +580,10 @@
 
 		return {
 			// setup defaults
-			engines:['localStorage', 'cookie', 'sessionStorage'],
-			storage:(supports.html5_storage()) ? localStorage : cookieStorage,
+			engines:['localStorage', 'cookie', 'sessionStorage', 'userData'],
+			storage:(supports.html5_storage()) ? localStorage : (
+				supports.userData() ? userStorage : cookieStorage
+			),
 			storage_engine:'localStorage',
 			/**
 			 * this should be used instead of force_engine or storage_engine
@@ -495,10 +598,22 @@
 			},
 			support:false,
 			/**
-			 * valid values to force_engine are: cookie, cookies, localStorage, local, localstorage, session, sessionstorage, sessionStorage
+			 * valid values to force_engine are: 
+			 *		cookie, cookies, localStorage, local, localstorage, 
+			 *		session, sessionstorage, sessionStorage, userData, 
+			 *		userdata, userStorage
 			 */
-			force_engine:function(eng){
-				switch(eng){
+			force_engine:function( eng ){
+				switch( eng ){
+					case 'userData':
+					case 'userStorage':
+					case 'userdata':
+					case 'user':
+						if(supports.userData()){
+							this.storage_engine = 'userData';
+							this.storage = userStorage;
+							break;
+						}
 					case "local":
 					case "localstorage":
 					case "localStorage":
@@ -527,20 +642,20 @@
 						break;
 				}
 				// call this to fallback if new engine is not supported
-				this.supported();
+				//this.supported();
 				return this;
 			},
 			supported:function( engine ) {
 				if( engine !== undefined ) {
-					this.force_engine( engine );
+					this.engine( engine );
 					return this.storage_engine === engine;
 				}
-				this.support = supports.html5_storage();
-				if(!this.support){
-					if(!supports.cookies){
-						return false;
-					} else if(this.storage_engine !== "cookie"){
-						this.force_engine('cookie');
+				if(!supports.html5_storage()){
+					if(supports.userData() && this.engine() !== 'userData'){
+						this.engine( 'userData' );
+						this.support = true;
+					}else if(supports.cookies() && this.engine() !== "cookie"){
+						this.engine('cookie');
 						this.support = true;
 					}
 				}
@@ -554,11 +669,11 @@
 				} else {
 					session_lifetime = (typeof session_lifetime !== "undefined");
 					var stringified = JSON.stringify( val );
-					if(session_lifetime && this.storage_engine !== "sessionStorage"){
+					if(session_lifetime && this.engine() !== "sessionStorage"){
 						var previous = this.storage_engine;
-						this.force_engine( 'sessionStorage' );
+						this.engine( 'sessionStorage' );
 						this.storage.setItem( key, stringified, session_lifetime );
-						this.force_engine( previous );
+						this.engine( previous );
 					} else {
 						this.storage.setItem( key, stringified );
 					}
@@ -608,13 +723,13 @@
 					if( parsed_data === null ) {
 						var x = 0, original_engine = this.storage_engine;
 						while( parsed_data === null && x < this.engines.length ) {
-							this.force_engine( this.engines[x] );
+							this.engine( this.engines[x] );
 							parsed_data = JSON.parse(
 								this.raw_value( key )
 								);
 							x++;
 						}
-						this.force_engine( original_engine );
+						this.engine( original_engine );
 					}
 					if( !parsed_data ) {
 						this.error( "No value found for key: " + key );
@@ -677,14 +792,17 @@
 			},
 			init:function(){
 				//gets called initially to bootstrap the storage engine (if using cookies)
+				try{
 				this.supported();
+				}catch(e){
+					alert("ERROR: " +e.description);
+				}
 				return this;
 			}
 		}.init();
 	})();
 	if(typeof window.jQuery !== "undefined"){
 		jQuery.jsper = jsper;
-	} else {
-	   window.jsper = jsper;
 	}
-})()
+	window.jsper = jsper;
+})();

@@ -2,7 +2,7 @@
 <head>
 	<title>jsper example</title>
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
-	<script type="text/javascript" src="/jsper/jsper.js"></script>
+	<script type="text/javascript" src="/jsper.js"></script>
 	<script type="text/javascript">
 		/**
 		*  NOTE: jsper object is initialized when the script is included
@@ -10,70 +10,68 @@
 		$(document).ready(function(){
 			if(typeof window['console'] === "object" && console !== null){
 				var msg = $('#message').html("See how cool all of that stuff below is?");
-			}else{
-                            window['console'] = {
-                                log:function(o){
-                                    alert(o);
-                                }
-                            };
-                        }
-			
-			if(jsper.supported())
-			{
-				//initialize our test data
-				var array 	= ['one', 'two', 'three'];
-				var object 	= {a:"foo", b:{c:"bar",d:"baz"}};
-				var str 	= "hello world!";
-				
-				//output original values
-				console.log(" -- Original Data:");
-				console.log(array);
-				console.log(object);
-				console.log(str);
-	
-				/**
-				*	jsper.set() method
-				*/
-				jsper.set("array", array);
-				jsper.set("object", object);
-				jsper.set("string", str);
-				
-				// examine stored values
-				console.log(" -- Data Representations in Storage");
-				console.log("Array %s",  jsper.raw_value("array"));
-				console.log("Object %s", jsper.raw_value("object"));
-				console.log("String %s", jsper.raw_value("string"));
-		
-				/**
-				*	jsper.get() method
-				*/
-				var array_out 	= jsper.get("array");
-				var object_out 	= jsper.get("object");
-				var string_out	= jsper.get("string");
-				
-				// examine retreived data
-				console.log(" -- Retreived Data");
-				console.log(array);
-				console.log(object);
-				console.log(str);
-		
-				/**
-				*	jsper.remove_item() method
-				*/
-				jsper.remove_item("array", 2);
-				jsper.remove_item("object", "a");
-				
-				// examine updated object/array
-				console.log(" -- Removed an array item and an object attribute");
-				console.log(jsper.get('array'));
-				console.log(jsper.get("object"));
+		   }else{
+		   		window['console'] = {
+					log:function(o){
+		            	alert(o);
+			        }
+       			};
 			}
+				//initialize our test data
+			var array 	= ['one', 'two', 'three'];
+			var object 	= {a:"foo", b:{c:"bar",d:"baz"}};
+			var str 	= "hello world!";
+			
+			//output original values
+			console.log(" -- Original Data:");
+			console.log(array);
+			console.log(object);
+			console.log(str);
+			
+			console.log("Current Engine: "+jsper.engine());
+
+			/**
+			*	jsper.set() method
+			*/
+			jsper.set("array", array);
+			jsper.set("object", object);
+			jsper.set("string", str);
+
+			// examine stored values
+			console.log(" -- Data Representations in Storage");
+			console.log("Array "+ jsper.raw_value("array"));
+			console.log("Object "+ jsper.raw_value("object"));
+			console.log("String "+ jsper.raw_value("string"));
+
+			/**
+			*	jsper.get() method
+			*/
+			var array_out 	= jsper.get("array");
+			var object_out 	= jsper.get("object");
+			var string_out	= jsper.get("string");
+
+			// examine retreived data
+			console.log(" -- Retreived Data");
+			console.log(array);
+			console.log(object);
+			console.log(str);
+
+			/**
+			*	jsper.remove_item() method
+			*/
+			jsper.remove_item("array", 2);
+			jsper.remove_item("object", "a");
+
+			// examine updated object/array
+			console.log(" -- Removed an array item and an object attribute");
+			console.log(jsper.get('array'));
+			console.log(jsper.get("object"));
 
 			/**
 			*	Used as a caching mechanism for ajax content
 			*/
 			var selector = "#test_item";
-			if( jsper.get( selector )) {
+			if( jsper.get( selector, false )) {
 				$( selector ).html("<strong>Cached:</strong>" +jsper.get( selector ));
 			} else {
 				$.ajax({
@@ -81,17 +79,18 @@
 					success:function( response ) {
 						$( selector ).html( response );
 						jsper.set( selector, response, true );
-					}
+					},
+					error:function(response){}
 				});
 			}
-			
+			console.log("Current engine: "+jsper.engine());
 			/**
 			*	Force Cookies
 			*/
 			jsper.force_engine('cookies');
 			jsper.set('cookie_object', {id:'abcs2323jalrk34jra',referrer:'local.testsite.com'});
 			console.log(jsper.get('cookie_object'));
-			
+
 			jsper.force_engine('sessionStorage');
 			console.log(jsper.storage_engine);
 			jsper.set('user', 'test person');
