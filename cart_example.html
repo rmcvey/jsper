@@ -107,7 +107,7 @@
 					isp.innerHTML = obj.name;
 					spn.setAttribute('class', 'remover');
 					spn.setAttribute('onclick', 'remove_item("'+obj.id+'", this)');
-					if(window.event){
+					if('attachEvent' in window){
 						spn.attachEvent('onclick', function(){
 							remove_item(obj.id, spn);
 						});
